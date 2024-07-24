@@ -1,0 +1,137 @@
+<html>
+    <head>
+        <script async src="//www.googletagservices.com/tag/js/gpt.js"></script>
+        <script sync src="//ads.adthrive.com/builds/core/dcbac92/vendor/prebid/prebid.min.js"></script>
+        <script>
+
+            var pbjs = pbjs || {};
+            pbjs.que = pbjs.que || [];
+
+            var googletag = googletag || {};
+            googletag.cmd = googletag.cmd || [];
+
+            var PREBID_TIMEOUT = 3000;
+
+            var adUnit = [{
+                code: 'AdThrive_Content_1',
+
+                mediaTypes: {
+                    video: {
+                        context: 'outstream',
+                        mimes: ['video/mp4'],
+                        playerSize: [300, 250],
+                        renderer: {
+                            url: 'apex.js',
+                            render: function (bid) {
+                                adResponse = {
+                                    ad: {
+                                        video: {
+                                            content: bid.adResponse.ad.rtb.video.vast,
+                                            player_width: 250,
+                                            player_height: 300,
+                                        }
+                                    },
+                                    placement: {
+                                        attachTo: '#this-is-the-shit',
+                                        align: 'center',
+                                        position: 'append'
+                                    },
+                                }
+                                
+                                // push to render queue because ANOutstreamVideo may not be loaded yet.
+                                bid.renderer.push(() => {
+                                    ANOutstreamVideo.renderAd({
+                                        sideStream: {
+                                        enabled: 1,
+                                
+                                    },
+                                        targetId: 'this-is-the-shit', // target div id to render video.
+                                        adResponse: adResponse,
+                                        rendererOptions: {
+                                            "disableCollapse": {
+                                                "enabled": true,
+                                                "replay": true
+                                            },
+                                        }
+                                    });
+                                });
+                            }
+                        },
+                    }
+                },
+                bids: [
+                    {
+                        bidder: 'appnexus',
+                        params: {
+                            placementId: 16808429,
+                            adType: 'outstreamDesktop',
+                            playback_method: ['auto_play_sound_off'],
+                        }
+                    }
+                ]
+            }];
+
+            pbjs.que.push(function() {
+                pbjs.addAdUnits(adUnit);
+                pbjs.requestBids({
+                    bidsBackHandler: initAdserver
+                });
+            });
+
+            function initAdserver() {
+                if (pbjs.initAdserverSet) return;
+                pbjs.initAdserverSet = true;
+                googletag.cmd.push(function() {
+                    pbjs.que.push(function() {
+                        pbjs.setTargetingForGPTAsync();
+                        googletag.pubads().refresh();
+                    });
+                });
+            }
+
+            setTimeout(function() {
+                initAdserver();
+            }, PREBID_TIMEOUT);
+
+            var slot1;
+            googletag.cmd.push(function() {
+                slot1 = googletag.defineSlot('/18190176/AdThrive_Content_1/52e41fac28963d1e058a110e', [[300,250]], 'AdThrive_Content_1')
+                        .addService(googletag.pubads());
+                googletag.pubads().disableInitialLoad();
+                googletag.enableServices();
+            });
+
+            function refreshBid() {
+                pbjs.que.push(function() {
+                    pbjs.requestBids({
+                        timeout: PREBID_TIMEOUT,
+                        adUnitCodes: ['AdThrive_Content_1'],
+                        bidsBackHandler: function() {
+                            pbjs.setTargetingForGPTAsync(['AdThrive_Content_1']);
+                            googletag.pubads().refresh([slot1]);
+                        }
+                    });
+                });
+            }
+
+        </script>
+    </head>
+    <body>
+        <p>Prebid Outstream Video Ad</p>
+        <p><button onclick="refreshBid()">Refresh Ad Unit</button></p>
+
+        <div id='this-is-the-shit'>There is text here</div>
+            <div id='AdThrive_Content_1'>
+                <script type='text/javascript'>
+                    googletag.cmd.push(function() {
+                        googletag.display('AdThrive_Content_1');
+                    });   
+                    
+                    // setInterval(() => {
+                    //     refreshBid()
+                    // }, 10000);
+                </script>
+            </div>
+        <div>There is text down here too</div>
+    </body>
+</html>

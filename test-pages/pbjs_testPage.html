@@ -1,108 +1,138 @@
 <html>
-<head>
-    <!-- Prebid Config Section START -->
-    <!-- Make sure this is inserted before your GPT tag -->
-    <script> 
-        var PREBID_TIMEOUT = 700;               //Overall timeout for all partners
-        var adUnits = [{
-            code: 'div-gpt-ad-1535469712532-0', //Ad Unit
-            sizes: [300, 250],    //Sizes being served to that ad unit
-            bids: [{
-                bidder: 'rubicon',
-                params: {
-                    accountId: '14062',
-                    siteId: '70608',
-                    zoneId: '472364',                                              
-                }
-        }]}];
-        // const customConfigObject = {
-        //     "buckets": [
-        //       {
-        //             "precision": 2, //default is 2 if omitted - means 2.1234 rounded to 2 decimal places = 2.12
-        //             "min": .10,
-        //             "max": 24.99,
-        //             "increment": 0.10
-        //         },
-        //         {
-        //             "precision": 2,
-        //             "min": 25.00,
-        //             "max": 50.00,
-        //             "increment": 0.50
-        //         }
-        //     ]
-        // };
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
-        pbjs.que.push(function() {
-            // pbjs.enableSendAllBids();       //Enabling sendAllBids to allow Deals to work
-        });
-    </script>
-    <!-- Prebid Config Section END -->
 
-    <!-- Prebid Boilerplate Section START. No Need to Edit. -->
-    <script type="text/javascript" src="../prebid-library/prebid1.32.0.js" async></script>
+    <head>
+        <link rel="icon" type="image/png" href="/favicon.png">
+        <script async src="//www.googletagservices.com/tag/js/gpt.js"></script>
+        <script async src="https://ads.adthrive.com/builds/core/354da07/vendor/prebid/prebid.min.js"></script>
+        <script>
+            var div_1_sizes = [
+                [300, 250],
+                [300, 600]
+            ];
+            var div_2_sizes = [
+                [728, 90],
+                [970, 250]
+            ];
+            var PREBID_TIMEOUT = 1000;
+            var FAILSAFE_TIMEOUT = 3000;
 
-    <script>
-        var googletag = googletag || {};
-        googletag.cmd = googletag.cmd || [];
-        googletag.cmd.push(function() {
-            googletag.pubads().disableInitialLoad();    // prevents call happening to DFP too early
-        });
+            var adUnits = [
+                {
+                    code: '/19968336/header-bid-tag-0',
+                    mediaTypes: {
+                        banner: {
+                            sizes: div_1_sizes
+                        }
+                    },
+                    bids: [{
+                        bidder: 'appnexus',
+                        params: {
+                            placementId: 13036388
+                        }
+                    },
+                    {
+                    bidder: 'rubicon',
+                    params: {
+                        accountId: '9262',
+                        siteId: '180726',
+                        zoneId: '881400',   
+                    }                                           
+                }]
+                },
+            ];
 
-        pbjs.que.push(function() {
-            pbjs.addAdUnits(adUnits);    //Add ad units to the PBJS Queue
-            pbjs.setConfig({
+            // ======== DO NOT EDIT BELOW THIS LINE =========== //
+            var googletag = googletag || {};
+            googletag.cmd = googletag.cmd || [];
+            googletag.cmd.push(function() {
+                googletag.pubads().disableInitialLoad();
+            });
+
+            var pbjs = pbjs || {};
+            pbjs.que = pbjs.que || [];
+
+            pbjs.que.push(function() {
+                pbjs.addAdUnits(adUnits);
+                pbjs.setConfig({
+                sendBidsControl: {
+                    bidLimit: 1
+                },
+                enableSendAllBids: true,
                 priceGranularity: "dense",
             })
-            pbjs.requestBids({    //Sending bid requests to all partners    
-                bidsBackHandler: sendAdserverRequest    //using bidsBackHandler
-            });
-        });
-
-        function sendAdserverRequest() {
-            if (pbjs.adserverRequestSent) return;
-            pbjs.adserverRequestSent = true;
-            googletag.cmd.push(function() {
-                pbjs.que.push(function() {
-                    pbjs.setTargetingForGPTAsync();     //Prebid preparing KVPs for DFP
-                    googletag.pubads().refresh();       //Ad request is made to DFP
+            pbjs.bidderSettings = {
+                rubicon: {
+                    sendStandardTargeting: true,
+                    adserverTargeting: [
+                        {
+                        key: "hb_pb",
+                        val: function(bidResponse) {
+                            return 20;
+                        }
+                        }
+                    ]
+                }
+            }
+                pbjs.requestBids({
+                    bidsBackHandler: initAdserver,
+                    timeout: PREBID_TIMEOUT
                 });
             });
-        }
 
-        setTimeout(function() {
-            sendAdserverRequest();          //Timeout is applied to the entire wrapper
-        }, PREBID_TIMEOUT);
-    </script>
-    <!-- Prebid Boilerplate Section END -->
+            function initAdserver() {
+                if (pbjs.initAdserverSet) return;
+                pbjs.initAdserverSet = true;
+                googletag.cmd.push(function() {
+                    pbjs.que.push(function() {
+                        pbjs.setTargetingForGPTAsync();
+                        googletag.pubads().refresh();
+                    });
+                });
+            }
+            // in case PBJS doesn't load
+            setTimeout(function() {
+                initAdserver();
+            }, FAILSAFE_TIMEOUT);
 
-    <script>
-        (function () {
-            var gads = document.createElement('script');
-            gads.async = true;
-            gads.type = 'text/javascript';
-            var useSSL = 'https:' == document.location.protocol;
-            gads.src = (useSSL ? 'https:' : 'http:') +
-                    '//www.googletagservices.com/tag/js/gpt.js';
-            var node = document.getElementsByTagName('script')[0];
-            node.parentNode.insertBefore(gads, node);
-        })();
-    </script>
-<script>
-  googletag.cmd.push(function() {
-    googletag.defineSlot('/5300653/prebid_safeframetest_ryan', [300, 250], 'div-gpt-ad-1535469712532-0').addService(googletag.pubads());
-    googletag.pubads().enableSingleRequest();
-    googletag.enableServices();
-  });
-</script>
-</head>
+            googletag.cmd.push(function() {
+                googletag.defineSlot('/19968336/header-bid-tag-0', div_1_sizes, 'div-1').addService(googletag.pubads());
+                googletag.pubads().enableSingleRequest();
+                googletag.enableServices();
+            });
+            googletag.cmd.push(function() {
+                googletag.defineSlot('/19968336/header-bid-tag-1', div_2_sizes, 'div-2').addService(googletag.pubads());
+                googletag.pubads().enableSingleRequest();
+                googletag.enableServices();
+            });
+
+        </script>
+
+    </head>
+
     <body>
-        <h2>Prebid.js Tester</h2>
-        <!-- /5300653/nam-adunit-prebidHost-test -->
-        <div id='div-gpt-ad-1535469712532-0' style='height:300; width:250;'>
-            <script>
-                googletag.cmd.push(function() { googletag.display('div-gpt-ad-1535469712532-0'); });
+        <h2>Basic Prebid.js Example</h2>
+        <h5>Div-1</h5>
+        <div id='div-1'>
+            <script type='text/javascript'>
+                googletag.cmd.push(function() {
+                    googletag.display('div-1');
+                });
+
             </script>
         </div>
+
+        <br>
+
+        <h5>Div-2</h5>
+        <div id='div-2'>
+            <script type='text/javascript'>
+                googletag.cmd.push(function() {
+                    googletag.display('div-2');
+                });
+
+            </script>
+        </div>
+
     </body>
+
 </html>

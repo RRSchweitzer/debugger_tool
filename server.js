@@ -1,32 +1,52 @@
-const express = require('express');
-const https = require('https');
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const cors = require('cors');
-const request = require('request');
+var express = require('express');
+var https = require('https');
+var http = require('http');
+var fs = require('fs');
+var path = require('path');
+var cors = require('cors');
+var bodyParser = require('body-parser')
 
-const app = express();
-const securePort = process.env.EXPRESS_PORT || 7070;
-const port = process.env.EXPRESS_PORT || 4333;
-const credentials = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem')
+var app = express();
+var securePort = process.env.EXPRESS_PORT || 7070;
+var port = process.env.EXPRESS_PORT || 8090;
+var credentials = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
 };
-const spoofCtrl = require('./controllers/spoofCtrl.js');
 
-//controllers
+app.use(bodyParser.urlencoded({
+  extended: true
+}))
+
+app.use(bodyParser.text())
+
+// MiddleWare
 var corsOptions = {
-	origin: (origin, callback) =>  {
-	  callback(null, true)
-	}
+    origin: function(origin, callback) {
+        callback(null, true)
+    }
 }
-
 app.use(cors(corsOptions))
 app.use(express.static(__dirname));
 
+app.get('/', function(req, res) {
+    //path to file you're serving
+    // res.sendFile(path.join(__dirname + '/test.html'));
+})
+
+function randomRangeCPM(min, max) {
+    cpm = (Math.random() * (max - min + 1) + min).toFixed(2);
+    return cpm;
+}
+
+const spoofCtrl = require('./controllers/spoofCtrl.js');
+
+app.get('/renderer-test', (req, res) => {
+	res.sendFile(path.join(__dirname + '/test-pages/render-test.html'));
+})
+
 // Endpoints
-app.get('/', (req, res) => {
+app.get('/hi', (req, res) => {
 	//path to file you're serving
     res.sendFile(path.join(__dirname + '/test-pages/pbjs_testPage.html'));
 })
@@ -38,16 +58,59 @@ app.get('/prebid-video', (req, res) => {
 	res.sendFile(path.join(__dirname + '/test-pages/prebid-video.html'));
 })
 
-// app.get('/creative/71739d10-c5f3-4e72-aa21-4f05d6658680.xml', (req, res) => {
-//   res.sendFile(path.join(__dirname + '/video_creative_spoof.xml'));
-// })
+app.get('/creative/61c519a3a71566928fe3ca24a6e0fc6c.xml', (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.sendFile(path.join(__dirname + '/test-pages/oustreamTest.xml'));
+})
 
-app.use('/wrapper', express.static('./wrapper.js'));
-app.use('/slowlane.json', spoofCtrl.slowlane)
+app.get('/loadpic', (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.sendFile(path.join(__dirname + '/test-pages/picture.js'));
+})
+
+app.get('/funfun', (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.sendFile(path.join(__dirname + '/test-pages/site-test.html'));
+})
+
+app.use('/loadpic', express.static('/test-pages/picture.js'));
+// app.use('/vpaid', express.static('/test-pages/picture.js'));
+
+app.get('/vpaid', (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.sendFile(path.join(__dirname + '/test-pages/vpaid.js'));
+})
+
+app.get('/vpaid', (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.sendFile(path.join(__dirname + '/test-pages/vpaid.js'));
+})
+app.get('/apex.js', (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.sendFile(path.join(__dirname + '/test-pages/apex.js'));
+})
+
+app.use('/amazon', spoofCtrl.amazon)
+app.use('/appnexus', spoofCtrl.appnexus)
+app.use('/domainConfig', spoofCtrl.domainConfig)
+app.use('/slowlane', spoofCtrl.slowlane)
+app.use('/pubmatic', spoofCtrl.pubmatic)
+app.use('/fubo', spoofCtrl.fubo)
+app.use('/teads', spoofCtrl.teads)
+app.use('/fubooptions', spoofCtrl.fubooptions)
+app.use('/appnexuscacheThing', spoofCtrl.appnexusCacheThing)
+
+app.use('/densitysucks', express.static('./wrapper.js'));
+app.use('/prebid', express.static('./prebid-library/prebid.js'));
+app.use('/rhminfix', express.static('./rhminfix.js'));
+app.use('/floors',spoofCtrl.floors)
 app.use('/auction', spoofCtrl.auction)
 app.use('/optimized_spoof', spoofCtrl.optimized)
 app.use('/video_spoof', spoofCtrl.video_spoof)
-app.use('/creative/71739d10-c5f3-4e72-aa21-4f05d6658680.xml', spoofCtrl.video_creative)
+app.use('/video_creative', spoofCtrl.video_creative)
+app.use('/video_vast_wrapper', spoofCtrl.video_vast_wrapper)
+app.use('/rubiconVideo', spoofCtrl.rubiconVideo)
+// app.use('/creative/71739d10-c5f3-4e72-aa21-4f05d6658680.xml', spoofCtrl.video_creative)
 
 const secure = https.createServer(credentials, app);
 const notSecure = http.createServer(app);
