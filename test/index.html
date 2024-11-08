@@ -1,0 +1,97 @@
+<html>
+<head>
+    <!-- Prebid Config Section START -->
+    <!-- Make sure this is inserted before your GPT tag -->
+    <script> 
+        var PREBID_TIMEOUT = 700;               //Overall timeout for all partners
+        var adUnits = [{
+            code: 'div-gpt-ad-1535469712532-0', //Ad Unit
+            sizes: [300, 250],    //Sizes being served to that ad unit
+            bids: [{
+                bidder: 'rubicon',
+                params: {
+                    accountId: '14062',
+                    siteId: '70608',
+                    zoneId: '472364',                                              
+                }
+        }]}];
+
+        var pbjs = pbjs || {};
+        pbjs.que = pbjs.que || [];
+        pbjs.que.push(function() {
+            // pbjs.enableSendAllBids();       //Enabling sendAllBids to allow Deals to work
+        });
+    </script>
+    <!-- Prebid Config Section END -->
+
+    <!-- Prebid Boilerplate Section START. No Need to Edit. -->
+    <script type="text/javascript" src="../prebid-library/prebid1.32.0.js" async></script>
+
+    <script>
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+
+        googletag.cmd.push(function() {
+          // googletag.enableServices();
+          // googletag.pubads().enableSingleRequest();
+          // googletag.enableServices();
+          googletag.pubads().disableInitialLoad();    // prevents call happening to DFP too early
+        });
+
+        pbjs.que.push(function() {
+            pbjs.addAdUnits(adUnits);    //Add ad units to the PBJS Queue
+            pbjs.setConfig({
+                priceGranularity: "dense",
+            })
+            pbjs.requestBids({    //Sending bid requests to all partners    
+                bidsBackHandler: sendAdserverRequest    //using bidsBackHandler
+            });
+        });
+
+        function sendAdserverRequest() {
+            if (pbjs.adserverRequestSent) return;
+            pbjs.adserverRequestSent = true;
+            googletag.cmd.push(function() {
+                pbjs.que.push(function() {
+                    pbjs.setTargetingForGPTAsync();     //Prebid preparing KVPs for DFP
+                    googletag.pubads().refresh();       //Ad request is made to DFP
+                });
+            });
+        }
+
+        setTimeout(function() {
+            sendAdserverRequest();          //Timeout is applied to the entire wrapper
+        }, PREBID_TIMEOUT);
+    </script>
+    <!-- Prebid Boilerplate Section END -->
+
+    <script>
+        (function () {
+            var gads = document.createElement('script');
+            gads.async = true;
+            gads.type = 'text/javascript';
+            var useSSL = 'https:' == document.location.protocol;
+            gads.src = (useSSL ? 'https:' : 'http:') +
+                    '//www.googletagservices.com/tag/js/gpt.js';
+            var node = document.getElementsByTagName('script')[0];
+            node.parentNode.insertBefore(gads, node);
+        })();
+    </script>
+<script>
+  googletag.cmd.push(function() {
+    googletag.defineSlot('/5300653/prebid_safeframetest_ryan', [300, 250], 'div-gpt-ad-1535469712532-0').addService(googletag.pubads());
+    googletag.pubads().enableSingleRequest();
+    googletag.enableServices();
+
+  });
+</script>
+</head>
+    <body>
+        <div id="div-gpt-ad-1535469712532-0"></div>
+        
+            <script>
+                googletag.cmd.push(function() { googletag.display('div-gpt-ad-1535469712532-0'); });
+            </script>
+        </div>
+    </body>
+</html>

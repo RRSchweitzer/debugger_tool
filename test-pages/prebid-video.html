@@ -1,0 +1,44 @@
+<div id='this_div_is_for_moat_to_find_things_with'>
+  <script>
+
+            // console.log('Prebid Winning Bid', '%%ADUNIT%%', winningBid);
+  
+            var frame = document.createElement('iframe');
+  
+            frame.setAttribute('FRAMEBORDER', 0);
+            frame.setAttribute('SCROLLING', 'no');
+            frame.setAttribute('MARGINHEIGHT', 0);
+            frame.setAttribute('MARGINWIDTH', 0);
+            frame.setAttribute('TOPMARGIN', 0);
+            frame.setAttribute('LEFTMARGIN', 0);
+            frame.setAttribute('ALLOWTRANSPARENCY', 'true');
+            frame.setAttribute('WIDTH', 200);
+            frame.setAttribute('HEIGHT', 200);
+  
+            var crabby = document.createElement('div');
+            crabby.id = 'crabby_town_usa';
+            var container = document.getElementById('this_div_is_for_moat_to_find_things_with');
+                      container.appendChild(crabby);
+
+                        // document.body.appendChild(container);
+            // container.appendChild(frame);
+  
+            document.body.appendChild(container);
+  
+              // console.log('Prebid Ad', '%%ADUNIT%%', winningBid.ad);
+  
+              // frame.contentDocument.open();
+              // frame.contentDocument.write("hello");
+              // frame.contentDocument.close();
+     
+  
+            var moatscript = document.createElement('script');
+            moatscript.type = 'text/javascript';
+            moatscript.src = 'https://z.moatads.com/cafemomadthrivenew924871067582/moatad.js#moatClientLevel1=prebid&moatClientLevel2=%ebuy!&moatClientLevel3=%%PATTERN:location%%_%%PATTERN:sequence%%&moatClientLevel4=%%PATTERN:vpwxvph%%&moatClientSlicer1=%%PATTERN:bucket%%&moatClientSlicer2=%%PATTERN:domain%%&zMoatAucID=%%CACHEBUSTER%%';
+            if (Math.random()<1.0) {
+               container.appendChild(moatscript);
+            }
+ 
+</script>
+</div>
+  

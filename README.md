@@ -13,8 +13,5 @@
 3. Run "npm install"
 	This will install all node modules from the package.json file
 
-4. Create Self Signed Certificate
-	Follow step 4 of https://docs.google.com/document/d/1Ewa7qm2B0rN48OPo-2Lq4cyqT17WvFI2m8Edolvz4Hw/edit
-
-3. To run server:
+4. To run server:
 	nodemon server.js
