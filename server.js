@@ -108,6 +108,7 @@ app.use('/domainConfig', spoofCtrl.domainConfig);
 app.use('/newDomain', spoofCtrl.newDomainConfig);
 app.use('/slowlane', spoofCtrl.slowlane);
 app.use('/pubmatic', spoofCtrl.pubmatic);
+app.use('/pubmaticVideo', spoofCtrl.pubmaticVideo);
 app.use('/fubo', spoofCtrl.fubo);
 app.use('/teads', spoofCtrl.teads);
 app.use('/fubooptions', spoofCtrl.fubooptions);

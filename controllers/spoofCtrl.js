@@ -246,51 +246,37 @@ module.exports = {
       ],
     });
   },
-  pubmatic: (req, res) => {
-    res.header('Access-Control-Allow-Credentials', true);
+    pubmaticVideo: (req, res) => {
+	res.header('Access-Control-Allow-Credentials', true);
     const body = JSON.parse(req.body);
     const uuid = uuidv4();
     const id = body.id;
-    const impId = body.imp[0].id;
-    const tagId = body.imp[0].tagid;
+    const impid = body.imp[0].id;
     const sourceId = body.source.tid;
 
-    // const sourceId = body.souce.tid;
-    // if(tagId !== '4744661') return
+
     res.send({
-      id: '1723490112205',
+      id,
       seatbid: [
         {
           bid: [
             {
-              id: sourceId,
-              impid: impId,
+			  id: sourceId,
+              impid,
               price: 20,
-              adm: `<VAST version=\"3.0\">\n<Ad>\n  <Wrapper>\n<AdSystem>prebid.org wrapper</AdSystem>\n<VASTAdTagURI><![CDATA[https://localhost:7070/creative/e24ea1d0bf869c0b74946930dd2e16e0.xml?uuid=${uuid}]]></VASTAdTagURI>\n\n<Creatives></Creatives>\n</Wrapper>\n</Ad>\n</VAST>`,
-              adomain: ['markanthonyintl.com'],
-              iurl: 'https://thetradedesk-t-general.s3.amazonaws.com/AdvertiserLogos/ukbxvrh.png',
-              cid: '22918',
-              crid: 'u5i0dci7',
+			  adm: `<VAST version=\"3.0\">\n<Ad>\n  <Wrapper>\n<AdSystem>prebid.org wrapper</AdSystem>\n<VASTAdTagURI><![CDATA[https://localhost:7070/creative/e24ea1d0bf869c0b74946930dd2e16e0.xml?uuid=${uuid}]]></VASTAdTagURI>\n\n<Creatives></Creatives>\n</Wrapper>\n</Ad>\n</VAST>`,			  adomain: ['homedepot.com'],
+              cid: '23026',
+              crid: '7508099',
               mtype: 2,
               ext: {
-                dspid: 377,
-                wDSPByrId: '2365',
-                advid: 1470003,
-                dchain: {
-                  ver: '1.0',
-                  complete: 0,
-                  nodes: [
-                    {
-                      asi: 'pubmatic.com',
-                      bsid: '377',
-                    },
-                  ],
-                },
+                dspid: 452,
+                wDSPByrId: '3259',
+                advid: 7664,
                 bidtype: 1,
               },
             },
           ],
-          seat: '32651',
+          seat: '41566',
         },
       ],
       cur: 'USD',
