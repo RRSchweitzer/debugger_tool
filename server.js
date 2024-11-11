@@ -81,6 +81,11 @@ app.get('/funfun', (req, res) => {
 });
 
 app.use('/loadpic', express.static('/test-pages/picture.js'));
+
+app.get('/kargoLoaderScript', (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.sendFile(path.join(__dirname + '/kargoLoaderScript.js'));
+});
 // app.use('/vpaid', express.static('/test-pages/picture.js'));
 
 app.get('/vpaid', (req, res) => {
@@ -100,6 +105,7 @@ app.get('/apex.js', (req, res) => {
 app.use('/amazon', spoofCtrl.amazon);
 app.use('/appnexus', spoofCtrl.appnexus);
 app.use('/domainConfig', spoofCtrl.domainConfig);
+app.use('/newDomain', spoofCtrl.newDomainConfig);
 app.use('/slowlane', spoofCtrl.slowlane);
 app.use('/pubmatic', spoofCtrl.pubmatic);
 app.use('/fubo', spoofCtrl.fubo);

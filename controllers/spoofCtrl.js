@@ -341,6 +341,114 @@ module.exports = {
       ],
     });
   },
+  newDomainConfig: (req, res) => {
+    res.header('Access-Control-Allow-Credentials', true);
+
+    res.send({
+      domain: 'www.loveBScott.com',
+      token: 'kjyr191w61f26kjkl20zok7gj998whnl',
+      site_id: 'oaisjdfau8a9s8y2o3in2f3',
+      key: 'newConfig',
+      config: {
+        gamConfig: {
+          fabrikAdsGam: {
+            gamMCMChildNetworkCode: '18834096',
+            googleAdTagDefaults: {
+              cust_params: {
+                kvp_test: 'control',
+              },
+            },
+          },
+        },
+        videoPlayers: [
+          {
+            type: 'outstream',
+            floatingOptions: {
+              mobile: {
+                position: 'top-right',
+                height: 120,
+              },
+              desktop: {
+                position: 'bottom-right',
+              },
+              hidePlayerOnClose: false,
+              noFloatIfAbove: true,
+              noFloatOnMobile: false,
+            },
+          },
+          {
+            autoplay: true,
+            withContent: true,
+            autoplayWhenVisible: true,
+            playlistToken: '4708d349cqozrdsp5c61afuu74jvlwyo',
+            muted: true,
+            floatingOptions: {
+              mobile: {
+                position: 'top-right',
+                height: 120,
+              },
+              desktop: {
+                position: 'bottom-right',
+              },
+              hidePlayerOnClose: false,
+              noFloatIfAbove: true,
+              noFloatOnMobile: false,
+              sidebar: true,
+            },
+            floating: true,
+            byPageContent: false,
+            irisPlaylist: false,
+            blockRecentVideos: false,
+            recentVideosHoursTimeout: 24,
+            showNext: 20,
+            noEngageNext: 11,
+            preferredExtensions: 'm3u8',
+            cdnHost: 'video.cloud.kargo.com',
+            globalStyles:
+              '.krg-time-container, .krg-controlbar-btn[title="Settings"] {display: none;} #kargo-player>div, #kargo-player>div>div{max-width: 100% !important;}div.krg-floating-player{border-radius:0px;}#kargo-player .ba-player-viewport-desktop{border-radius:10px;}[data-layout="desktop"][data-visibility="float"]>div{border-radius:10px;overflow:hidden;}#kargo-player>div>div { z-index: 9999; }.krg-floating-player.krg-layout-mobile {margin-top:43px}[data-layout="desktop"][data-visibility="float"] .krg-3d-scene {right: 30px !important}',
+          },
+        ],
+        auctionOptions: {
+          fabrikAdsBidders: {
+            appnexus: false,
+            criteo: false,
+            fabrikAds: true,
+            ix: true,
+            mediaNet: true,
+            openx: true,
+            pubmatic: true,
+            rubicon: true,
+            sharethrough: true,
+            tripleLift: true,
+          },
+          publisherAdsConfig: {
+            fallbackMode: 'fabrikAdsFallback',
+            runWithfabrikAds: false,
+            gamConfig: {
+              adUnitName: 'publisherAdUnit',
+              networkCode: '88899999',
+              gamMCMChildNetworkCode: '999988888',
+              google_ad_tag_defaults: {
+                sz: '400x300',
+                cust_params: {},
+              },
+            },
+            prebidConfig: {
+              prebidNamespace: 'jbpbjs',
+              bidderSetUp: {
+                rubicon: { accountId: '12345', siteId: '67890' },
+                ogury: {
+                  assetKey: 'OGY-CA41D116484F',
+                  adUnitId: '2c4d61d0-90aa-0139-0cda-0242ac120004',
+                },
+              },
+              settings: {},
+            },
+          },
+        },
+      },
+    });
+  },
   domainConfig: (req, res) => {
     res.header('Access-Control-Allow-Credentials', true);
     res.send({
