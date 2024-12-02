@@ -107,7 +107,6 @@ app.use('/appnexus', spoofCtrl.appnexus);
 app.use('/domainConfig', spoofCtrl.domainConfig);
 app.use('/newDomain', spoofCtrl.newDomainConfig);
 app.use('/slowlane', spoofCtrl.slowlane);
-app.use('/pubmatic', spoofCtrl.pubmatic);
 app.use('/pubmaticVideo', spoofCtrl.pubmaticVideo);
 app.use('/fubo', spoofCtrl.fubo);
 app.use('/teads', spoofCtrl.teads);
@@ -130,6 +129,7 @@ app.use('/video_creative', spoofCtrl.video_creative);
 app.use('/video_vast_wrapper', spoofCtrl.video_vast_wrapper);
 app.use('/rubiconVideo', spoofCtrl.rubiconVideo);
 app.use('/kargoVideo', spoofCtrl.kargoVideo);
+app.use('/sharethroughVideoAd', spoofCtrl.sharethroughVideoAd);
 // app.use('/creative/71739d10-c5f3-4e72-aa21-4f05d6658680.xml', spoofCtrl.video_creative)
 
 const secure = https.createServer(credentials, app);

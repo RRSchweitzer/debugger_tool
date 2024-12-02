@@ -246,14 +246,13 @@ module.exports = {
       ],
     });
   },
-    pubmaticVideo: (req, res) => {
-	res.header('Access-Control-Allow-Credentials', true);
+  pubmaticVideo: (req, res) => {
+    res.header('Access-Control-Allow-Credentials', true);
     const body = JSON.parse(req.body);
     const uuid = uuidv4();
     const id = body.id;
     const impid = body.imp[0].id;
     const sourceId = body.source.tid;
-
 
     res.send({
       id,
@@ -261,10 +260,11 @@ module.exports = {
         {
           bid: [
             {
-			  id: sourceId,
+              id: sourceId,
               impid,
               price: 20,
-			  adm: `<VAST version=\"3.0\">\n<Ad>\n  <Wrapper>\n<AdSystem>prebid.org wrapper</AdSystem>\n<VASTAdTagURI><![CDATA[https://localhost:7070/creative/e24ea1d0bf869c0b74946930dd2e16e0.xml?uuid=${uuid}]]></VASTAdTagURI>\n\n<Creatives></Creatives>\n</Wrapper>\n</Ad>\n</VAST>`,			  adomain: ['homedepot.com'],
+              adm: `<VAST version=\"3.0\">\n<Ad>\n  <Wrapper>\n<AdSystem>prebid.org wrapper</AdSystem>\n<VASTAdTagURI><![CDATA[https://localhost:7070/creative/e24ea1d0bf869c0b74946930dd2e16e0.xml?uuid=${uuid}]]></VASTAdTagURI>\n\n<Creatives></Creatives>\n</Wrapper>\n</Ad>\n</VAST>`,
+              adomain: ['homedepot.com'],
               cid: '23026',
               crid: '7508099',
               mtype: 2,
@@ -812,6 +812,40 @@ module.exports = {
     // 		"globalStyles": ".krg-time-container, .krg-controlbar-btn[title=\"Settings\"] {display: none;} #kargo-player>div, #kargo-player>div>div{max-width: 100% !important;}div.krg-floating-player{border-radius:0px;}#kargo-player .ba-player-viewport-desktop{border-radius:10px;}[data-layout=\"desktop\"][data-visibility=\"float\"]>div{border-radius:10px;overflow:hidden;}#kargo-player>div>div { z-index: 9999; }.krg-floating-player.krg-layout-mobile {margin-top:43px}[data-layout=\"desktop\"][data-visibility=\"float\"] .krg-3d-scene {right: 30px !important}"
     // 	}
     // })
+  },
+  sharethroughVideoAd: (req, res) => {
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    const body = JSON.parse(req.body);
+    const id = body.imp[0].id;
+    const uuid = uuidv4();
+
+    res.send({
+      id: '10f55385-31a9-4d8d-bae5-a9553718d6a2',
+      bidid: 'bf007fbc-9d67-4052-91c9-4c4c8e658865',
+      cur: 'USD',
+      seatbid: [
+        {
+          seat: '2149:5295',
+          bid: [
+            {
+              lurl: 'https://b.sharethrough.com/butler?type=lossReasons&arid=bf007fbc-9d67-4052-91c9-4c4c8e658865&ckey=2149:11605178&sourceId=UiRtTsXAfjmfSDAKnR1FjWsu&umtime=[TIMESTAMP]&action=NativeOutstream&pkey=292Ue9akqDbXhksBXioCKgF2&awid=3a7a8de0-f34f-4003-8092-639fa64cb7d4&Lossreason=${AUCTION_LOSS}',
+              price: 20.0,
+              adomain: ['hsn.com'],
+              // adm: `https://localhost:7070/creative/kargoVideo.xml?${uuid}`,
+              adm: '<VAST version="2.0"><Ad id="preroll-1"><InLine><AdSystem>2.0</AdSystem><AdTitle>57489898406</AdTitle><Creatives><Creative><Linear><Duration>01:00:00</Duration><TrackingEvents></TrackingEvents><VideoClicks><ClickThrough id="scanscout"><![CDATA[ http://www.target.com ]]></ClickThrough></VideoClicks><MediaFiles><MediaFile height="396" width="600" bitrate="496" type="video/mp4" delivery="progressive"><![CDATA[https://localhost:7070/video/iceland]]></MediaFile></MediaFiles></Linear></Creative><Creative><CompanionAds><Companion height="250" width="300" id="555750"><HTMLResource><![CDATA[<A onClick="var i= new Image(1,1); i.src=\'http://app.scanscout.com/ssframework/log/log.png?a=logitemaction&RI=555750&CbC=1&CbF=true&EC=0&RC=0&SmC=2&CbM=1.0E-5&VI=736e6b13bad531dc476bc3612749bc35&admode=preroll&PRI=-4827170214961170629&RprC=0&ADsn=17&VcaI=192,197&RrC=1&VgI=736e6b13bad531dc476bc3612749bc35&AVI=142&Ust=ma&Uctry=us&CI=1223187&AC=4&PI=567&Udma=506&ADI=5748406&VclF=true\';" HREF="http://target.com" target="_blank"><IMG SRC="http://media.scanscout.com/ads/target300x250Companion.jpg" BORDER=0 WIDTH=300 HEIGHT=250 ALT="Click Here"></A><img src="http://app.scanscout.com/ssframework/log/log.png?a=logitemaction&RI=555750&CbC=1&CbF=true&EC=1&RC=0&SmC=2&CbM=1.0E-5&VI=736e6b13bad531dc476bc3612749bc35&admode=preroll&PRI=-4827170214961170629&RprC=0&ADsn=17&VcaI=192,197&RrC=1&VgI=736e6b13bad531dc476bc3612749bc35&AVI=142&Ust=ma&Uctry=us&CI=1223187&AC=4&PI=567&Udma=506&ADI=5748406&VclF=true" height="1" width="1">]]></HTMLResource></Companion></CompanionAds></Creative></Creatives></InLine></Ad></VAST>',
+              id: '10f55385-31a9-4d8d-bae5-a9553718d6a2',
+              cid: '',
+              ext: {
+                networkId: 'UiRtTsXAfjmfSDAKnR1FjWsu',
+                networkName: 'Magnite (Rubicon) - Video',
+              },
+              impid: id,
+              crid: '2149:11605178',
+            },
+          ],
+        },
+      ],
+    });
   },
   amazon: (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
