@@ -1,3 +1,11 @@
+// Video Cpms
+const kargoCpm = 20.00;
+const rubiconCpm = 20; 
+const pubmaticCpm = 14;
+const appnexusCpm = 2;
+const sharethroughCpm = 2;
+const adagioCpm = 22.00
+
 function randomRangeCPM(min, max) {
   cpm = (Math.random() * (max - min + 1) + min).toFixed(2);
   return cpm;
@@ -23,7 +31,6 @@ module.exports = {
     var tagid = JSON.parse(req.body).tags[0].id;
     if (tagid === 22366045) {
       // Stick Outstream
-      console.log('outstream serving');
       res.send({
         version: '3.0.0',
         tags: [
@@ -49,7 +56,7 @@ module.exports = {
                 creative_id: uuidv4(),
                 media_type_id: 4,
                 media_subtype_id: 64,
-                cpm: 30,
+                cpm: appnexusCpm,
                 cpm_publisher_currency: 0.009243,
                 publisher_currency_code: '$',
                 brand_category_id: 29,
@@ -72,7 +79,7 @@ module.exports = {
           },
         ],
       });
-    } else if (tagid === 15504193 || tagid === 15504209) {
+    } else if (true) {
       //delete the zeros to make this work
       res.send({
         version: '3.0.0',
@@ -89,7 +96,7 @@ module.exports = {
             rtb_video_fallback: false,
             ads: [
               {
-                cpm: 50.0,
+                cpm: appnexusCpm,
                 cpm_publisher_currency: 50.0,
                 publisher_currency_code: '$',
                 content_source: 'rtb',
@@ -110,7 +117,7 @@ module.exports = {
                     duration_ms: 30000,
                     playback_methods: ['auto_play_sound_off'],
                     frameworks: ['vpaid_2_0'],
-                    asset_url: 'https://localhost:7070/creative/71739d10-c5f3-4e72-aa21-4f05d6658680.xml',
+                    asset_url: 'https://localhost:7070/appnexusAd.xml',
                   },
                 },
               },
@@ -262,8 +269,8 @@ module.exports = {
             {
               id: sourceId,
               impid,
-              price: 20,
-              adm: `<VAST version=\"3.0\">\n<Ad>\n  <Wrapper>\n<AdSystem>prebid.org wrapper</AdSystem>\n<VASTAdTagURI><![CDATA[https://localhost:7070/creative/e24ea1d0bf869c0b74946930dd2e16e0.xml?uuid=${uuid}]]></VASTAdTagURI>\n\n<Creatives></Creatives>\n</Wrapper>\n</Ad>\n</VAST>`,
+              price: pubmaticCpm,
+              adm: `<VAST version=\"3.0\">\n<Ad>\n  <Wrapper>\n<AdSystem>prebid.org wrapper</AdSystem>\n<VASTAdTagURI><![CDATA[https://localhost:7070/pubmaticAd.xml?uuid=${uuid}]]></VASTAdTagURI>\n\n<Creatives></Creatives>\n</Wrapper>\n</Ad>\n</VAST>`,
               adomain: ['homedepot.com'],
               cid: '23026',
               crid: '7508099',
@@ -283,8 +290,6 @@ module.exports = {
     });
   },
   slowlane: (req, res) => {
-    console.log('what is happening');
-    console.log(req);
     var size_id = parseInt(req.query.size_id);
     var account_id = parseInt(req.query.account_id);
     var site_id = parseInt(req.query.site_id);
@@ -327,113 +332,316 @@ module.exports = {
       ],
     });
   },
+
+  adagioVideo: (req, res) => {
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    const body = JSON.parse(req.body);
+    const bidId = body.adUnits[0].bidId;
+    const uuid = uuidv4();
+
+    res.send({
+      "bids": [
+        {
+          "requestId": bidId,
+          "creativeId": "6732_70269_T23504205",
+          "cpm": adagioCpm,
+          "currency": "USD",
+          "vastUrl": `https://localhost:7070/adagioAd.xml?${uuid}`,
+          "ttl": 2700,
+          "netRevenue": true,
+          "adUnitCode": "Fabrik_Outstream_Player",
+          "aDomain": [
+            "mcdonalds.com"
+          ],
+          "seatId": "25",
+          "pba": {
+            "st_id": "25",
+            "splt_cs_id": "347"
+          },
+          "meta": {
+            "advertiserDomains": [
+              "spoofed-ad.com"
+            ]
+          },
+          "mediaType": "video",
+          "instream": {}
+        }
+      ]
+    });
+  },
+
   newDomainConfig: (req, res) => {
     res.header('Access-Control-Allow-Credentials', true);
 
     res.send({
-      domain: 'www.loveBScott.com',
-      token: 'kjyr191w61f26kjkl20zok7gj998whnl',
-      site_id: 'oaisjdfau8a9s8y2o3in2f3',
-      key: 'newConfig',
-      config: {
-        gamConfig: {
-          fabrikAdsGam: {
-            gamMCMChildNetworkCode: '18834096',
-            googleAdTagDefaults: {
-              cust_params: {
-                kvp_test: 'control',
+      "domain": "lovebscott.com",
+      "site_id": "z8tuuyzeyc69mvbukoesecnz30qh7eav",
+      "token": "5bf6xy15nxdapzyupdqhyi57r03l7j15",
+      "key": "Outstream V2",
+      "config": {
+          "type": "v2-prod",
+          "prerollconfig": [
+              {
+                  "prebidbids": [
+                      {
+                          "bidder": "kargo",
+                          "params": {
+                              "placementId": {
+                                  "&mobile": "_fbQyupuVFk",
+                                  "&desktop": "_yVinTG1Qt6"
+                              }
+                          }
+                      },
+                      {
+                          "bidder": "appnexus",
+                          "params": {
+                              "placementId": "32304081"
+                          }
+                      },
+                      {
+                          "bidder": "pubmatic",
+                          "params": {
+                              "publisherId": "5810203",
+                              "video": {
+                                  "language": "en"
+                              }
+                          }
+                      },
+                      {
+                          "bidder": "rubicon",
+                          "params": {
+                              "accountId": "14792",
+                              "siteId": "534850",
+                              "zoneId": "3289294"
+                          }
+                      }
+                  ],
+                  "prebiddfpad": {
+                      "iu": "/22558409563,21923628061/Fabrik_Outstream_Player/o5s6iysxcjd413wzhiuhlhnxlgxw7se5"
+                  }
+              }
+          ],
+          "midrollconfig": [
+              {
+                  "prebidbids": [
+                      {
+                          "bidder": "kargo",
+                          "params": {
+                              "placementId": {
+                                  "&mobile": "_fbQyupuVFk",
+                                  "&desktop": "_yVinTG1Qt6"
+                              }
+                          }
+                      },
+                      {
+                          "bidder": "appnexus",
+                          "params": {
+                              "placementId": "32304083"
+                          }
+                      },
+                      {
+                          "bidder": "pubmatic",
+                          "params": {
+                              "publisherId": "5810204",
+                              "video": {
+                                  "language": "en"
+                              }
+                          }
+                      },
+                      {
+                          "bidder": "rubicon",
+                          "params": {
+                              "accountId": "14792",
+                              "siteId": "534850",
+                              "zoneId": "3289296"
+                          }
+                      }
+                  ],
+                  "prebiddfpad": {
+                      "iu": "/22558409563,21923628061/lovebscott_midroll"
+                  }
+              }
+          ],
+          "prebidconfig": {
+              "priceGranularity": {
+                  "buckets": [
+                      {
+                          "max": 40,
+                          "increment": 0.05
+                      }
+                  ]
               },
-            },
+              "schain": {
+                  "config": {
+                      "ver": "1.0",
+                      "complete": 1,
+                      "nodes": [
+                          {
+                              "asi": "fabrik.com",
+                              "sid": "56",
+                              "hp": 1
+                          }
+                      ]
+                  }
+              }
           },
-        },
-        videoPlayers: [
-          {
-            type: 'outstream',
-            floatingOptions: {
-              mobile: {
-                position: 'top-right',
-                height: 120,
+          "adsposition": "pre,mid[30*]",
+          "autoplay": true,
+          "muted": true,
+          "unmuteonclick": true,
+          "floatstyle": "v2",
+          "floatingoptions": {
+              "mobile": {
+                  "position": "top-right",
+                  "height": 120
               },
-              desktop: {
-                position: 'bottom-right',
+              "desktop": {
+                  "position": "bottom-right"
               },
-              hidePlayerOnClose: false,
-              noFloatIfAbove: true,
-              noFloatOnMobile: false,
-            },
+              "hideplayeronclose": true,
+              "floatingonly": true,
+              "sidebar": false
           },
-          {
-            autoplay: true,
-            withContent: true,
-            autoplayWhenVisible: true,
-            playlistToken: '4708d349cqozrdsp5c61afuu74jvlwyo',
-            muted: true,
-            floatingOptions: {
-              mobile: {
-                position: 'top-right',
-                height: 120,
-              },
-              desktop: {
-                position: 'bottom-right',
-              },
-              hidePlayerOnClose: false,
-              noFloatIfAbove: true,
-              noFloatOnMobile: false,
-              sidebar: true,
-            },
-            floating: true,
-            byPageContent: false,
-            irisPlaylist: false,
-            blockRecentVideos: false,
-            recentVideosHoursTimeout: 24,
-            showNext: 20,
-            noEngageNext: 11,
-            preferredExtensions: 'm3u8',
-            cdnHost: 'video.cloud.kargo.com',
-            globalStyles:
-              '.krg-time-container, .krg-controlbar-btn[title="Settings"] {display: none;} #kargo-player>div, #kargo-player>div>div{max-width: 100% !important;}div.krg-floating-player{border-radius:0px;}#kargo-player .ba-player-viewport-desktop{border-radius:10px;}[data-layout="desktop"][data-visibility="float"]>div{border-radius:10px;overflow:hidden;}#kargo-player>div>div { z-index: 9999; }.krg-floating-player.krg-layout-mobile {margin-top:43px}[data-layout="desktop"][data-visibility="float"] .krg-3d-scene {right: 30px !important}',
+          "floating": true,
+          "outstream": true,
+          "outstreamoptions": {
+              "hideOnCompletion": true,
+              "maxadstoshow": -1,
+              "allowRepeat": true
           },
-        ],
-        auctionOptions: {
-          fabrikAdsBidders: {
-            appnexus: false,
-            criteo: false,
-            fabrikAds: true,
-            ix: true,
-            mediaNet: true,
-            openx: true,
-            pubmatic: true,
-            rubicon: true,
-            sharethrough: true,
-            tripleLift: true,
+          "preferredextensions": "m3u8",
+          "cdnhost": "video.cloud.kargo.com",
+          "hidebrandinfo": true,
+          "allowshowmore": false,
+          "bypagecontent": true,
+          "query": {
+              "limit": 1,
+              "category": "entertainment"
           },
-          publisherAdsConfig: {
-            fallbackMode: 'fabrikAdsFallback',
-            runWithfabrikAds: false,
-            gamConfig: {
-              adUnitName: 'publisherAdUnit',
-              networkCode: '88899999',
-              gamMCMChildNetworkCode: '999988888',
-              google_ad_tag_defaults: {
-                sz: '400x300',
-                cust_params: {},
-              },
-            },
-            prebidConfig: {
-              prebidNamespace: 'jbpbjs',
-              bidderSetUp: {
-                rubicon: { accountId: '12345', siteId: '67890' },
-                ogury: {
-                  assetKey: 'OGY-CA41D116484F',
-                  adUnitId: '2c4d61d0-90aa-0139-0cda-0242ac120004',
-                },
-              },
-              settings: {},
-            },
-          },
-        },
+          "blockrecentvideos": true,
+          "recentvideoshourstimeout": 24,
+          "globalStyles": "[data-visibility=\"float\"][data-layout=\"mobile\"]>.krg-layout-mobile{margin-top:0px; z-index:9;}[data-layout=\"desktop\"][data-visibility=\"float\"] .krg-3d-scene.krg-floating-player {bottom: 110px !important;}"
       },
-    });
+      "revision": 3
+  })
+  //   res.send({
+  //     "domain": "greenmatters.com",
+  //     "site_id": "bmbk0x29w2o6lu5kozoit8z9wod5bm0s",
+  //     "token": "yrd54jwuwk869svbcygtf6i2hgaxqs1d",
+  //     "key": "FVP Outstream",
+  //     "config": {
+  //         "type": "prod",
+  //         "original_site_id": "bmbk0x29w2o6lu5kozoit8z9wod5bm0s",
+  //         "gam": {
+  //             "gamChildNetworkCode": "18834096",
+  //             "googleAdTagDefaults": {
+  //                 "cust_params": {
+  //                     "kvp_test": "3.0.0"
+  //                 }
+  //             }
+  //         },
+  //         "video": [
+  //             {
+  //                 "type": "outstream",
+  //                 "width": 350,
+  //                 "height": 197
+  //             }
+  //         ],
+  //         "prebid": {
+  //             "nonUniversalBidders": [
+  //                 {
+  //                     "bidder": "appnexus",
+  //                     "params": {
+  //                         "placementId": 27726592
+  //                     }
+  //                 },
+  //                 {
+  //                     "bidder": "criteo",
+  //                     "params": {
+  //                         "networkId": 12022
+  //                     }
+  //                 },
+  //                 {
+  //                     "bidder": "pubmatic",
+  //                     "params": {
+  //                         "publisherId": "160382",
+  //                         "adSlot": "4744661",
+  //                         "video": {
+  //                             "language": "en"
+  //                         }
+  //                     }
+  //                 },
+  //                 {
+  //                     "bidder": "rubicon",
+  //                     "params": {
+  //                         "accountId": 14792,
+  //                         "siteId": 135894,
+  //                         "zoneId": 2776394,
+  //                         "video": {
+  //                             "language": "en"
+  //                         }
+  //                     }
+  //                 },
+  //                 {
+  //                     "bidder": "medianet",
+  //                     "params": {
+  //                         "cid": "8CUA286RD",
+  //                         "crid": "321813836"
+  //                     }
+  //                 },
+  //                 {
+  //                     "bidder": "sharethrough",
+  //                     "params": {
+  //                         "pkey": "PQcCMQebxWvgyJmPtIqd0icI"
+  //                     }
+  //                 },
+  //                 {
+  //                     "bidder": "kargo",
+  //                     "params": {
+  //                         "placementId": {
+  //                             "mobile": "_l7B3dJDVeQ",
+  //                             "desktop": "_djwZ5uZ3I4"
+  //                         }
+  //                     }
+  //                 },
+  //                 {
+  //                     "bidder": "triplelift",
+  //                     "params": {
+  //                         "inventoryCode": "greenmatters_com_In-Article_Outstream_pb"
+  //                     }
+  //                 },
+  //                 {
+  //                     "bidder": "smartadserver",
+  //                     "params": {
+  //                         "domain": "https://prg.smartadserver.com",
+  //                         "formatId": 126627,
+  //                         "networkId": 4794,
+  //                         "pageId": 1890425,
+  //                         "siteId": 621263
+  //                     }
+  //                 }
+  //             ],
+  //             "enabledBidders": {
+  //                 "appnexus": true,
+  //                 "gumgum": true,
+  //                 "criteo": true,
+  //                 "ix": true,
+  //                 "kargo": true,
+  //                 "medianet": true,
+  //                 "openx": true,
+  //                 "pubmatic": true,
+  //                 "rubicon": true,
+  //                 "sovrn": true,
+  //                 "sharethrough": true,
+  //                 "smartadserver": true,
+  //                 "triplelift": true
+  //             }
+  //         },
+  //         "schemaVersion": "3.0"
+  //     },
+  //     "revision": 25
+  // })
+
   },
   domainConfig: (req, res) => {
     res.header('Access-Control-Allow-Credentials', true);
@@ -829,10 +1037,10 @@ module.exports = {
           bid: [
             {
               lurl: 'https://b.sharethrough.com/butler?type=lossReasons&arid=bf007fbc-9d67-4052-91c9-4c4c8e658865&ckey=2149:11605178&sourceId=UiRtTsXAfjmfSDAKnR1FjWsu&umtime=[TIMESTAMP]&action=NativeOutstream&pkey=292Ue9akqDbXhksBXioCKgF2&awid=3a7a8de0-f34f-4003-8092-639fa64cb7d4&Lossreason=${AUCTION_LOSS}',
-              price: 20.0,
+              price: sharethroughCpm,
               adomain: ['hsn.com'],
-              // adm: `https://localhost:7070/creative/kargoVideo.xml?${uuid}`,
-              adm: '<VAST version="2.0"><Ad id="preroll-1"><InLine><AdSystem>2.0</AdSystem><AdTitle>57489898406</AdTitle><Creatives><Creative><Linear><Duration>01:00:00</Duration><TrackingEvents></TrackingEvents><VideoClicks><ClickThrough id="scanscout"><![CDATA[ http://www.target.com ]]></ClickThrough></VideoClicks><MediaFiles><MediaFile height="396" width="600" bitrate="496" type="video/mp4" delivery="progressive"><![CDATA[https://localhost:7070/video/iceland]]></MediaFile></MediaFiles></Linear></Creative><Creative><CompanionAds><Companion height="250" width="300" id="555750"><HTMLResource><![CDATA[<A onClick="var i= new Image(1,1); i.src=\'http://app.scanscout.com/ssframework/log/log.png?a=logitemaction&RI=555750&CbC=1&CbF=true&EC=0&RC=0&SmC=2&CbM=1.0E-5&VI=736e6b13bad531dc476bc3612749bc35&admode=preroll&PRI=-4827170214961170629&RprC=0&ADsn=17&VcaI=192,197&RrC=1&VgI=736e6b13bad531dc476bc3612749bc35&AVI=142&Ust=ma&Uctry=us&CI=1223187&AC=4&PI=567&Udma=506&ADI=5748406&VclF=true\';" HREF="http://target.com" target="_blank"><IMG SRC="http://media.scanscout.com/ads/target300x250Companion.jpg" BORDER=0 WIDTH=300 HEIGHT=250 ALT="Click Here"></A><img src="http://app.scanscout.com/ssframework/log/log.png?a=logitemaction&RI=555750&CbC=1&CbF=true&EC=1&RC=0&SmC=2&CbM=1.0E-5&VI=736e6b13bad531dc476bc3612749bc35&admode=preroll&PRI=-4827170214961170629&RprC=0&ADsn=17&VcaI=192,197&RrC=1&VgI=736e6b13bad531dc476bc3612749bc35&AVI=142&Ust=ma&Uctry=us&CI=1223187&AC=4&PI=567&Udma=506&ADI=5748406&VclF=true" height="1" width="1">]]></HTMLResource></Companion></CompanionAds></Creative></Creatives></InLine></Ad></VAST>',
+              adm: `https://localhost:7070/sharethroughAd.xml?${uuid}`,
+              // adm: '<VAST version="2.0"><Ad id="preroll-1"><InLine><AdSystem>2.0</AdSystem><AdTitle>57489898406</AdTitle><Creatives><Creative><Linear><Duration>01:00:00</Duration><TrackingEvents></TrackingEvents><VideoClicks><ClickThrough id="scanscout"><![CDATA[ http://www.target.com ]]></ClickThrough></VideoClicks><MediaFiles><MediaFile height="396" width="600" bitrate="496" type="video/mp4" delivery="progressive"><![CDATA[https://localhost:7070/video/iceland]]></MediaFile></MediaFiles></Linear></Creative><Creative><CompanionAds><Companion height="250" width="300" id="555750"><HTMLResource><![CDATA[<A onClick="var i= new Image(1,1); i.src=\'http://app.scanscout.com/ssframework/log/log.png?a=logitemaction&RI=555750&CbC=1&CbF=true&EC=0&RC=0&SmC=2&CbM=1.0E-5&VI=736e6b13bad531dc476bc3612749bc35&admode=preroll&PRI=-4827170214961170629&RprC=0&ADsn=17&VcaI=192,197&RrC=1&VgI=736e6b13bad531dc476bc3612749bc35&AVI=142&Ust=ma&Uctry=us&CI=1223187&AC=4&PI=567&Udma=506&ADI=5748406&VclF=true\';" HREF="http://target.com" target="_blank"><IMG SRC="http://media.scanscout.com/ads/target300x250Companion.jpg" BORDER=0 WIDTH=300 HEIGHT=250 ALT="Click Here"></A><img src="http://app.scanscout.com/ssframework/log/log.png?a=logitemaction&RI=555750&CbC=1&CbF=true&EC=1&RC=0&SmC=2&CbM=1.0E-5&VI=736e6b13bad531dc476bc3612749bc35&admode=preroll&PRI=-4827170214961170629&RprC=0&ADsn=17&VcaI=192,197&RrC=1&VgI=736e6b13bad531dc476bc3612749bc35&AVI=142&Ust=ma&Uctry=us&CI=1223187&AC=4&PI=567&Udma=506&ADI=5748406&VclF=true" height="1" width="1">]]></HTMLResource></Companion></CompanionAds></Creative></Creatives></InLine></Ad></VAST>',
               id: '10f55385-31a9-4d8d-bae5-a9553718d6a2',
               cid: '',
               ext: {
@@ -1046,7 +1254,7 @@ module.exports = {
 
     res.send({
       [id]: {
-        cpm: 23.25,
+        cpm: kargoCpm,
         pricing: {
           floor: 0,
           buckets: null,
@@ -1056,7 +1264,7 @@ module.exports = {
         },
         adm: '',
         // "admUrl": "https://kraken.prod.kargo.com/api/v1/adm?ctx=019103b1-adb2-7821-b568-0883d85c67aa",
-        admUrl: `https://localhost:7070/creative/kargoVideo.xml?${uuid}`,
+        admUrl: `https://localhost:7070/kargoAd.xml?${uuid}`,
         id: '_djwZ5uZ3I4',
         receivedTracker: 'https://kraken.prod.kargo.com/api/v1/event/received?ctx=019103b1-adb2-7821-b568-0883d85c67aa',
         targetingPrefix: '',
@@ -1072,6 +1280,7 @@ module.exports = {
 
   rubiconVideo: (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
+    // res.setHeader('cache-control', 'no-cache');
     const body = JSON.parse(req.body);
     const uuid = uuidv4();
 
@@ -1081,8 +1290,6 @@ module.exports = {
     // const size_id = body.imp[0].ext.prebid.bidder.rubicon.size_id;
     const impId = body.imp[0].id;
 
-    console.log(body.imp[0]);
-
     res.send({
       id: 'f4f50f00-4eb3-41b9-bed2-dcc7bf83626f',
       seatbid: [
@@ -1091,7 +1298,7 @@ module.exports = {
             {
               id: 'dfecc0e0-f525-4f9b-8503-eeaf5223b652',
               impid: impId,
-              price: 19.0,
+              price: rubiconCpm,
               adomain: ['pepsico.com'],
               crid: '2307:l1fhpqe6',
               exp: 900,
@@ -1112,7 +1319,7 @@ module.exports = {
                   },
                   cache: {
                     vastXml: {
-                      url: `https://localhost:7070/creative/e24ea1d0bf869c0b74946930dd2e16e0.xml?ff${uuid}`,
+                      url: `https://localhost:7070/rubiconAd.xml?${uuid}`,
                       cacheId: 'e24ea1d0bf869c0b74946930dd2e16e0',
                     },
                   },

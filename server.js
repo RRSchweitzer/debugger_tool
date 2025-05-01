@@ -60,14 +60,31 @@ app.get('/prebid-video', (req, res) => {
   res.sendFile(path.join(__dirname + '/test-pages/prebid-video.html'));
 });
 
-app.get('/creative/e24ea1d0bf869c0b74946930dd2e16e0.xml', (req, res) => {
+app.get('/kargoAd.xml', (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/instreamAd.xml'));
+  res.sendFile(path.join(__dirname + '/test-pages/kargoAd.xml'));
 });
 
-app.get('/creative/kargoVideo.xml', (req, res) => {
+app.get('/adagioAd.xml', (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/instreamAd2.xml'));
+  res.sendFile(path.join(__dirname + '/test-pages/adagioAd.xml'));
+});
+
+
+
+app.get('/appnexusAd.xml', (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.sendFile(path.join(__dirname + '/test-pages/appnexusAd.xml'));
+});
+
+app.get('/sharethroughAd.xml', (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.sendFile(path.join(__dirname + '/test-pages/sharethroughAd.xml'));
+});
+
+app.get('/rubiconAd.xml', (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.sendFile(path.join(__dirname + '/test-pages/rubiconAd.xml'));
 });
 
 app.get('/loadpic', (req, res) => {
@@ -103,7 +120,7 @@ app.get('/apex.js', (req, res) => {
 });
 
 app.use('/amazon', spoofCtrl.amazon);
-app.use('/appnexus', spoofCtrl.appnexus);
+app.use('/appnexusVideo', spoofCtrl.appnexus);
 app.use('/domainConfig', spoofCtrl.domainConfig);
 app.use('/newDomain', spoofCtrl.newDomainConfig);
 app.use('/slowlane', spoofCtrl.slowlane);
@@ -120,6 +137,7 @@ app.get('/video/iceland', (req, res) => {
 
 app.use('/densitysucks', express.static('./wrapper.js'));
 app.use('/prebid', express.static('./prebid-library/prebid.js'));
+app.use('/pubx', express.static('./prebid-library/pubx.js'));
 app.use('/rhminfix', express.static('./rhminfix.js'));
 app.use('/floors', spoofCtrl.floors);
 app.use('/auction', spoofCtrl.auction);
@@ -129,6 +147,7 @@ app.use('/video_creative', spoofCtrl.video_creative);
 app.use('/video_vast_wrapper', spoofCtrl.video_vast_wrapper);
 app.use('/rubiconVideo', spoofCtrl.rubiconVideo);
 app.use('/kargoVideo', spoofCtrl.kargoVideo);
+app.use('/adagioVideo', spoofCtrl.adagioVideo);
 app.use('/sharethroughVideoAd', spoofCtrl.sharethroughVideoAd);
 // app.use('/creative/71739d10-c5f3-4e72-aa21-4f05d6658680.xml', spoofCtrl.video_creative)
 
