@@ -1,5 +1,5 @@
 // Video Cpms
-const kargoCpm = 20.00;
+const kargoCpm = 40.00;
 const rubiconCpm = 20; 
 const pubmaticCpm = 14;
 const appnexusCpm = 2;
@@ -117,7 +117,7 @@ module.exports = {
                     duration_ms: 30000,
                     playback_methods: ['auto_play_sound_off'],
                     frameworks: ['vpaid_2_0'],
-                    asset_url: 'https://localhost:7070/appnexusAd.xml',
+                    asset_url: `https://localhost:7070/appnexusAd.xml?uuid=${uuid}`,
                   },
                 },
               },
