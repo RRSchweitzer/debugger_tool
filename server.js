@@ -23,12 +23,46 @@ app.use(
 app.use(bodyParser.text());
 
 // MiddleWare
-var corsOptions = {
-  origin: function (origin, callback) {
-    callback(null, true);
-  },
-};
-app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  const allowOrigin = '*';
+
+  res.header('Access-Control-Allow-Origin', allowOrigin);
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header(
+    'Access-Control-Allow-Headers',
+    req.headers['access-control-request-headers'] ||
+      'Origin, X-Requested-With, Content-Type, Accept',
+  );
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Private-Network', 'true');
+
+    return res.sendStatus(200);
+  }
+  next();
+});
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  } else {
+    // non-browser clients
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    req.headers["access-control-request-headers"] ||
+      "Origin, X-Requested-With, Content-Type, Accept"
+  );
+
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 app.use(express.static(__dirname));
 
 app.get('/', function (req, res) {

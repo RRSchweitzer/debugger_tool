@@ -227,7 +227,6 @@ module.exports = {
     }
   },
   teads: (req, res) => {
-    res.header('Access-Control-Allow-Credentials', true);
     const placementId = JSON.parse(req.body).data[0].placementId;
     const bidId = JSON.parse(req.body).data[0].bidId;
     const auctionId = JSON.parse(req.body).data[0].auctionId;
@@ -254,7 +253,6 @@ module.exports = {
     });
   },
   pubmaticVideo: (req, res) => {
-    res.header('Access-Control-Allow-Credentials', true);
     const body = JSON.parse(req.body);
     const uuid = uuidv4();
     const id = body.id;
@@ -297,7 +295,6 @@ module.exports = {
     // var cpmResp = randomNumber(40, 50, size_id)
     // randomNumber(2.48, 2.48, req.query.size_id);
 
-    res.header('Access-Control-Allow-Credentials', true);
     res.send({
       status: 'ok',
       account_id: account_id,
@@ -341,44 +338,43 @@ module.exports = {
 
     res.send({
       "bids": [
-        {
-          "requestId": bidId,
+          {
+              "requestId": bidId,
           "creativeId": "6732_70269_T23504205",
-          "cpm": adagioCpm,
-          "currency": "USD",
+              "cpm": adagioCpm,
+              "currency": "USD",
           "vastUrl": `https://localhost:7070/adagioAd.xml?${uuid}`,
           "ttl": 2700,
-          "netRevenue": true,
-          "adUnitCode": "Fabrik_Outstream_Player",
-          "aDomain": [
+              "netRevenue": true,
+              "adUnitCode": "Fabrik_Outstream_Player",
+              "aDomain": [
             "mcdonalds.com"
-          ],
+              ],
           "seatId": "25",
-          "pba": {
+              "pba": {
             "st_id": "25",
-            "splt_cs_id": "347"
-          },
-          "meta": {
-            "advertiserDomains": [
+                  "splt_cs_id": "347"
+              },
+              "meta": {
+                  "advertiserDomains": [
               "spoofed-ad.com"
             ]
-          },
-          "mediaType": "video",
+              },
+              "mediaType": "video",
           "instream": {}
         }
-      ]
-    });
+    ]
+});
   },
 
   newDomainConfig: (req, res) => {
-    res.header('Access-Control-Allow-Credentials', true);
 
     res.send({
       "domain": "lovebscott.com",
       "site_id": "z8tuuyzeyc69mvbukoesecnz30qh7eav",
       "token": "5bf6xy15nxdapzyupdqhyi57r03l7j15",
       "key": "Outstream V2",
-      "config": {
+        "config": {
           "type": "v2-prod",
           "prerollconfig": [
               {
@@ -404,10 +400,10 @@ module.exports = {
                               "publisherId": "5810203",
                               "video": {
                                   "language": "en"
-                              }
-                          }
-                      },
-                      {
+                      }
+                    }
+                  },
+                  {
                           "bidder": "rubicon",
                           "params": {
                               "accountId": "14792",
@@ -426,31 +422,31 @@ module.exports = {
                   "prebidbids": [
                       {
                           "bidder": "kargo",
-                          "params": {
+                        "params": {
                               "placementId": {
                                   "&mobile": "_fbQyupuVFk",
                                   "&desktop": "_yVinTG1Qt6"
                               }
-                          }
-                      },
-                      {
+                        }
+                    },
+                    {
                           "bidder": "appnexus",
-                          "params": {
+                        "params": {
                               "placementId": "32304083"
-                          }
-                      },
-                      {
-                          "bidder": "pubmatic",
-                          "params": {
+                        }
+                    },
+                    {
+                        "bidder": "pubmatic",
+                        "params": {
                               "publisherId": "5810204",
-                              "video": {
-                                  "language": "en"
-                              }
-                          }
-                      },
-                      {
+                            "video": {
+                                "language": "en"
+                            }
+                        }
+                    },
+                    {
                           "bidder": "rubicon",
-                          "params": {
+                        "params": {
                               "accountId": "14792",
                               "siteId": "534850",
                               "zoneId": "3289296"
@@ -644,7 +640,6 @@ module.exports = {
 
   },
   domainConfig: (req, res) => {
-    res.header('Access-Control-Allow-Credentials', true);
     res.send({
       domain: 'www.dorkaholics.com',
       token: '1os6eyiu8jvi2jaelfkeqllraqxvsjlf',
@@ -1248,7 +1243,7 @@ module.exports = {
   },
   kargoVideo: (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
-    const body = JSON.parse(req.body);
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const id = body.imp[0].id;
     const uuid = uuidv4();
 
@@ -1281,7 +1276,7 @@ module.exports = {
   rubiconVideo: (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
     // res.setHeader('cache-control', 'no-cache');
-    const body = JSON.parse(req.body);
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const uuid = uuidv4();
 
     // const account_id = parseInt(body.imp[0].ext.prebid.bidder.rubicon.accountId)
@@ -1373,7 +1368,7 @@ module.exports = {
           impression_id: 'e74eb7d6-04d9-4faf-af44-34c2d45fbef2',
         },
       ],
-    });
+  });
   },
   video_spoof: (req, res) => {
     const adId = req.body.imp.id;
