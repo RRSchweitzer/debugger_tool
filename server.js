@@ -85,7 +85,7 @@ app.get('/sharethroughAd.xml', (req, res) => {
   res.sendFile(path.join(__dirname + '/test-ads/sharethroughAd.xml'));
 });
 app.get('/rubiconAd.xml', (req, res) => {
-  originMiddleware(req, res);
+  res.setHeader('Access-Control-Allow-Credentials', true);
   res.sendFile(path.join(__dirname + '/test-ads/rubiconAd.xml'));
 });
 app.get('/kargoLoaderScript', (req, res) => {
@@ -100,8 +100,12 @@ app.use('/newDomain', spoofCtrl.newDomainConfig);
 app.use('/slowlane', spoofCtrl.slowlane);
 app.use('/kargoDisplay', spoofCtrl.kargoDisplay);
 app.use('/kargoPrebid', (req, res) => {
-  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-  console.log('kargoPrebid');
+  let body;
+  try {
+    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  } catch (err) {
+    return res.status(400).send({ error: 'Invalid JSON' });
+  }
   if (body && body.imp && body.imp[0] && body.imp[0].banner) {
     return spoofCtrl.kargoDisplay(req, res);
   }
