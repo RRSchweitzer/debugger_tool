@@ -1,0 +1,136 @@
+<html>
+<head>
+    <!-- Prebid Config Section START -->
+    <!-- Make sure this is inserted before your GPT tag -->
+    <script> 
+        var PREBID_TIMEOUT = 700;               //Overall timeout for all partners
+        var adUnits = [{
+            code: 'div-gpt-ad-1535469712532-0', //Ad Unit
+            sizes: [300, 250],    //Sizes being served to that ad unit
+            bids: [{
+                bidder: 'rubicon',
+                params: {
+                    accountId: '14062',
+                    siteId: '70608',
+                    zoneId: '472364',                                              
+                }
+        }]}];
+        // const customConfigObject = {
+        //     "buckets": [
+        //       {
+        //             "precision": 2, //default is 2 if omitted - means 2.1234 rounded to 2 decimal places = 2.12
+        //             "min": .10,
+        //             "max": 24.99,
+        //             "increment": 0.10
+        //         },
+        //         {
+        //             "precision": 2,
+        //             "min": 25.00,
+        //             "max": 50.00,
+        //             "increment": 0.50
+        //         }
+        //     ]
+        // };
+        var pbjs = pbjs || {};
+        pbjs.que = pbjs.que || [];
+        pbjs.que.push(function() {
+            // pbjs.enableSendAllBids();       //Enabling sendAllBids to allow Deals to work
+        });
+    </script>
+    <!-- Prebid Config Section END -->
+
+    <!-- Prebid Boilerplate Section START. No Need to Edit. -->
+    <script type="text/javascript" src="../prebid-library/prebid1.32.0.js" async></script>
+
+    <script>
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+        googletag.cmd.push(function() {
+            googletag.pubads().disableInitialLoad();    // prevents call happening to DFP too early
+        });
+
+        pbjs.que.push(function() {
+            pbjs.addAdUnits(adUnits);    //Add ad units to the PBJS Queue
+            pbjs.setConfig({
+                priceGranularity: "dense",
+            })
+            pbjs.requestBids({    //Sending bid requests to all partners    
+                bidsBackHandler: sendAdserverRequest    //using bidsBackHandler
+            });
+        });
+
+        function sendAdserverRequest() {
+            if (pbjs.adserverRequestSent) return;
+            pbjs.adserverRequestSent = true;
+            googletag.cmd.push(function() {
+                pbjs.que.push(function() {
+                    pbjs.setTargetingForGPTAsync();     //Prebid preparing KVPs for DFP
+                    googletag.pubads().refresh();       //Ad request is made to DFP
+                });
+            });
+        }
+
+        setTimeout(function() {
+            sendAdserverRequest();          //Timeout is applied to the entire wrapper
+        }, PREBID_TIMEOUT);
+    </script>
+    <!-- Prebid Boilerplate Section END -->
+
+    <script>
+        (function () {
+            var gads = document.createElement('script');
+            gads.async = true;
+            gads.type = 'text/javascript';
+            var useSSL = 'https:' == document.location.protocol;
+            gads.src = (useSSL ? 'https:' : 'http:') +
+                    '//www.googletagservices.com/tag/js/gpt.js';
+            var node = document.getElementsByTagName('script')[0];
+            node.parentNode.insertBefore(gads, node);
+        })();
+    </script>
+<script>
+  googletag.cmd.push(function() {
+    googletag.defineSlot('/5300653/prebid_safeframetest_ryan', [300, 250], 'div-gpt-ad-1535469712532-0').addService(googletag.pubads());
+    googletag.pubads().enableSingleRequest();
+    googletag.enableServices();
+  });
+</script>
+</head>
+    <body>
+        <div id="hello"></div>
+        "<div id="emximp"><script>var adm='\<\!DOCTYPE\ html\>\
+            \<div\ style\=\"height\:\ 90px\;\ width\:\ 728px\;\ display\:\ table\-cell\;\ vertical\-align\:\ middle\;\"\>\
+            \ \ \<div\ style\=\"width\:\ 728px\;\ margin\-left\:\ auto\;\ margin\-right\:\ auto\;\"\>\
+            \ \ \
+            \ \ \ \ \<div\ id\=\"qc\-ad\-size\"\ class\=\"qc\-ad\-728x90\"\>\
+            \ \ \ \ \ \ \<link\ href\=\"http\:\/\/content\.quantcount\.com\/adchoices\/v2\/css\/728x90\.css\"\ rel\=\"stylesheet\"\ type\=\"text\/css\"\/\>\
+            \ \ \ \ \ \ \<\!\-\-\[if\ lte\ IE\ 8\]\>\
+            \ \ \ \ \ \ \<link\ href\=\"http\:\/\/content\.quantcount\.com\/adchoices\/v2\/css\/ie\.css\"\ rel\=\"stylesheet\"\ type\=\"text\/css\"\/\>\
+            \ \ \ \ \ \ \<\!\[endif\]\-\-\>\
+            \ \ \ \ \ \ \<\!\-\-\[if\ lte\ IE\ 6\]\>\
+            \ \ \ \ \ \ \<link\ href\=\"http\:\/\/content\.quantcount\.com\/adchoices\/v2\/css\/ie6\.css\"\ rel\=\"stylesheet\"\ type\=\"text\/css\"\/\>\
+            \ \ \ \ \ \ \<\!\[endif\]\-\-\>\
+            \ \ \ \ \ \ \<div\ class\=\"quantcast\-ad\-div\"\>\
+            \ \ \ \ \ \ \ \ \<script\ src\=\"http\:\/\/adserver\.adtechus\.com\/addyn\/3\.0\/5399\.1\/2394397\/0\/\-1\/QUANTCAST\;gdpr_consent\=\;kvexch\=qcx\;gdpr\=0\;kvprvw\=\;gdpr_pd\=0\;size\=728x90\;target\=_blank\;alias\=p36\-0gfbcvgwv7vvezah\;kvp36\=p36\-0gfbcvgwv7vvezah\;sub1\=p\-VXAtmdTPRUjUp\;kvl\=539180\;kvc\=1351032\;kvs\=728x90\;kvi\=flH0tHpR97Z4UvC9c1T3sHpc8LwuVQzi_y4\=\;kva\=p\-VXAtmdTPRUjUp\;sub2\=\;rdclick\=http\:\/\/exch\.quantserve\.com\/r\?a\=p\-VXAtmdTPRUjUp\;labels\=_qc\.clk\,_click\.adserver\.rtb\,_click\.rand\.95786\;rtbip\=192\.184\.73\.44\;rtbdata2\=EBcaGUNES19HTUNfUmV0ZW50aW9uX0ZGXzIwMTkg0ZMsKKz0IDD4ulI6Hmh0dHA6Ly93d3cucmVwZWF0Y3JhZnRlcm1lLmNvbVooUkYwMXB4TmJZYVJjQm11aUV3OS05eFFJWnZGY0RXdnhRMXFaR0liQ3X9jaQ9gAGHsZiaCaABAagBt5CfBLoBFjYzMTExNTYwMTk0ODQ4NDc0NTI3YTPAAZDvB8gB\-M2foLwt2gEWNTU1MDE1NjIzNjE5ODA2NDE4MThlMeUBPIxsOugBZJgC77cnsAIIugIEwLhJLMACAsgCANAC4Ojb04yY0\-2ZAeACAOgCBPgCAIoDAjMxkgMDZW14mAMAqAMAsgMESEWwAA\;gdpr\=0\;gdpr_consent\=\;redirecturl2\=\"\ type\=\"text\/javascript\"\>\ \<\/script\>\
+            \ \ \ \ \ \ \ \ \<img\ src\=\"http\:\/\/exch\.quantserve\.com\/pixel\/p\-VXAtmdTPRUjUp\.gif\?media\=ad\&p\=\$\{EMX_MACRO\}\&r\=547242\&rand\=95786\&labels\=_qc\.imp\,_imp\.adserver\.rtb\,_imp\.qccampaign\.723409\,_imp\.flight\.646127\,_imp\.lineitem\.539180\&rtbip\=192\.184\.73\.44\&rtbdata2\=EBcaGUNES19HTUNfUmV0ZW50aW9uX0ZGXzIwMTkg0ZMsKKz0IDD4ulI6Hmh0dHA6Ly93d3cucmVwZWF0Y3JhZnRlcm1lLmNvbVooUkYwMXB4TmJZYVJjQm11aUV3OS05eFFJWnZGY0RXdnhRMXFaR0liQ3X9jaQ9gAGHsZiaCaABAagBt5CfBLoBFjYzMTExNTYwMTk0ODQ4NDc0NTI3YTPAAZDvB8gB\-M2foLwt2gEWNTU1MDE1NjIzNjE5ODA2NDE4MThlMeUBPIxsOugBZJgC77cnsAIIugIEwLhJLMACAsgCANAC4Ojb04yY0\-2ZAeACAOgCBPgCAIoDAjMxkgMDZW14mAMAqAMAsgMESEWwAA\&gdpr\=0\&gdpr_consent\=\"\ style\=\"display\:\ none\;\"\ border\=\"0\"\ height\=\"1\"\ width\=\"1\"\ alt\=\"Quantcast\"\/\>\
+            \ \ \ \ \ \ \<\/div\>\
+            \ \ \ \ \ \ \<a\ class\=\"qc\-adchoices\-link\ top\-right\ \"\ href\=\"http\:\/\/pixel\.quantcount\.com\/r\?a\=p\-9fYuixa7g_Hm2\;rand\=95786\;labels\=_click\.creative\.iab\,_qc\.iab\.clk\.p\-VXAtmdTPRUjUp\.539180\.1351032\;redirecturl2\=http\:\/\/www\.quantcast\.com\/adchoices\"\ target\=\"_blank\"\>\
+            \ \ \ \ \ \ \ \ \<div\ class\=\"qc\-adchoices\ top\-right\ \"\>\
+            \ \ \ \ \ \ \ \ \ \ \<span\ class\=\"qc\-adchoices\-text\"\>AdChoices\<\/span\>\
+            \ \ \ \ \ \ \ \ \ \ \<img\ class\=\"qc\-adchoices\-icon\"\ width\=12\ height\=12\ src\=\"http\:\/\/content\.quantcount\.com\/adchoices\/img\/adc\.png\"\/\>\
+            \ \ \ \ \ \ \ \ \<\/div\>\
+            \ \ \ \ \ \ \<\/a\>\
+            \ \ \ \ \ \ \<div\ class\=\"border\-div\"\>\<\/div\>\
+            \ \ \ \ \<\/div\>\
+            \
+            \ \ \<img\ src\=\"http\:\/\/pixel\.quantcount\.com\/pixel\/p\-9fYuixa7g_Hm2\.gif\?labels\=_imp\.creative\.iab\,_qc\.iab\.imp\.p\-VXAtmdTPRUjUp\.539180\.1351032\"\ style\=\"display\:\ none\;\"\ border\=\"0\"\ height\=\"1\"\ width\=\"1\"\ alt\=\"Quantcast\"\/\>\
+            \ \ \<script\ src\=\"http\:\/\/z\.moatads\.com\/quantcastv2691176990399\/moatad\.js\#moatClientLevel1\=p\-VXAtmdTPRUjUp\&moatClientLevel2\=723409\&moatClientLevel3\=539180\&moatClientLevel4\=1351032\&uid\=flH0tHpR97Z4UvC9c1T3sHpc8LwuVQzi_y4\=\&gdpr\=0\&gdpr_consent\=\"\ type\=\"text\/javascript\"\>\<\/script\>\
+            \ \ \<\/div\>\
+            \<\/div\>\
+            <script src="https://imp.emxdgt.com/imp/?cp=0.12891&ts=1562361981&w=728&h=90&pb=0.109574&sid=2026&tid=31523&pid=31&uid=55501562361980641818e1&wid=20&dom=www.repeatcrafterme.com&tp=${EMX_MACRO}&rf=${RF_MACRO}&cfc=yes"><\/script>'; window.vc= 'https://imp.emxdgt.com/view/?cp=0.12891&ts=1562361981&w=728&h=90&pb=0.109574&sid=2026&tid=31523&pid=31&uid=55501562361980641818e1&wid=20&dom=www.repeatcrafterme.com&tp=${EMX_MACRO}&rf=${RF_MACRO}&cfc=yes';  var ap="${AUCTION_PRICE}";var rf=document.domain; window.cp="0.12891"; if(ap == "test=1" || ap == "AUDIT" || rf == "s3.amazonaws.com"){var finaladm=adm.replace(/\${EMX_MACRO}/g,"AUDIT"); window.audit = true;}else{var finaladm=finaladm=adm.replace(/\${EMX_MACRO}/g,window.cp);}finaladm=finaladm.replace(/\${RF_MACRO}/g,rf);try{document.write(decodeURI(finaladm));}catch(e){document.write(unescape(finaladm));};</script><script src="https://js.brealtime.com/openvv.js"></script></div>"        <div id='div-gpt-ad-1535469712532-0' style='height:300; width:250;'>
+            <script>
+                googletag.cmd.push(function() { googletag.display('div-gpt-ad-1535469712532-0'); });
+            </script>
+        </div>
+    </body>
+</html>

@@ -3,7 +3,6 @@ var https = require('https');
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
-var cors = require('cors');
 var bodyParser = require('body-parser');
 
 var app = express();
@@ -20,7 +19,7 @@ app.use(
   }),
 );
 
-app.use(bodyParser.text());
+app.use(bodyParser.text({ type: ['text/*', 'application/json'] }));
 
 // MiddleWare
 app.use((req, res, next) => {
@@ -65,92 +64,33 @@ app.use((req, res, next) => {
 });
 app.use(express.static(__dirname));
 
-app.get('/', function (req, res) {
-  //path to file you're serving
-  // res.sendFile(path.join(__dirname + '/test.html'));
-});
-
-function randomRangeCPM(min, max) {
-  cpm = (Math.random() * (max - min + 1) + min).toFixed(2);
-  return cpm;
-}
-
 const spoofCtrl = require('./controllers/spoofCtrl.js');
 
-app.get('/renderer-test', (req, res) => {
-  res.sendFile(path.join(__dirname + '/test-pages/render-test.html'));
-});
-
-// Endpoints
 app.get('/hi', (req, res) => {
-  //path to file you're serving
-  res.sendFile(path.join(__dirname + '/test-pages/pbjs_testPage.html'));
+  res.sendFile(path.join(__dirname + '/test-ads/pbjs_testPage.html'));
 });
-app.get('/demand-manager', (req, res) => {
-  //path to file you're serving
-  res.sendFile(path.join(__dirname + '/test-pages/managed_config_prebid.html'));
-});
-app.get('/prebid-video', (req, res) => {
-  res.sendFile(path.join(__dirname + '/test-pages/prebid-video.html'));
-});
-
 app.get('/kargoAd.xml', (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/kargoAd.xml'));
+  res.sendFile(path.join(__dirname + '/test-ads/kargoAd.xml'));
 });
-
 app.get('/adagioAd.xml', (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/adagioAd.xml'));
+  res.sendFile(path.join(__dirname + '/test-ads/adagioAd.xml'));
 });
-
-
-
 app.get('/appnexusAd.xml', (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/appnexusAd.xml'));
+  res.sendFile(path.join(__dirname + '/test-ads/appnexusAd.xml'));
 });
-
 app.get('/sharethroughAd.xml', (req, res) => {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/sharethroughAd.xml'));
+  res.sendFile(path.join(__dirname + '/test-ads/sharethroughAd.xml'));
 });
-
 app.get('/rubiconAd.xml', (req, res) => {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/rubiconAd.xml'));
+  originMiddleware(req, res);
+  res.sendFile(path.join(__dirname + '/test-ads/rubiconAd.xml'));
 });
-
-app.get('/loadpic', (req, res) => {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/picture.js'));
-});
-
-app.get('/funfun', (req, res) => {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/site-test.html'));
-});
-
-app.use('/loadpic', express.static('/test-pages/picture.js'));
-
 app.get('/kargoLoaderScript', (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.sendFile(path.join(__dirname + '/kargoLoaderScript.js'));
-});
-// app.use('/vpaid', express.static('/test-pages/picture.js'));
-
-app.get('/vpaid', (req, res) => {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/vpaid.js'));
-});
-
-app.get('/vpaid', (req, res) => {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/vpaid.js'));
-});
-app.get('/apex.js', (req, res) => {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.sendFile(path.join(__dirname + '/test-pages/apex.js'));
 });
 
 app.use('/amazon', spoofCtrl.amazon);
@@ -158,6 +98,15 @@ app.use('/appnexusVideo', spoofCtrl.appnexus);
 app.use('/domainConfig', spoofCtrl.domainConfig);
 app.use('/newDomain', spoofCtrl.newDomainConfig);
 app.use('/slowlane', spoofCtrl.slowlane);
+app.use('/kargoDisplay', spoofCtrl.kargoDisplay);
+app.use('/kargoPrebid', (req, res) => {
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  console.log('kargoPrebid');
+  if (body && body.imp && body.imp[0] && body.imp[0].banner) {
+    return spoofCtrl.kargoDisplay(req, res);
+  }
+  return spoofCtrl.kargoVideo(req, res);
+});
 app.use('/pubmaticVideo', spoofCtrl.pubmaticVideo);
 app.use('/fubo', spoofCtrl.fubo);
 app.use('/teads', spoofCtrl.teads);
@@ -165,14 +114,12 @@ app.use('/fubooptions', spoofCtrl.fubooptions);
 app.use('/appnexuscacheThing', spoofCtrl.appnexusCacheThing);
 app.get('/video/iceland', (req, res) => {
   const filePath = path.join(__dirname, 'iceland.mp4');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length');
   res.setHeader('Content-Type', 'video/mp4');
   res.sendFile(filePath);
 });
 
-app.use('/densitysucks', express.static('./wrapper.js'));
-app.use('/prebid', express.static('./prebid-library/prebid.js'));
 app.use('/pubx', express.static('./prebid-library/pubx.js'));
-app.use('/rhminfix', express.static('./rhminfix.js'));
 app.use('/floors', spoofCtrl.floors);
 app.use('/auction', spoofCtrl.auction);
 app.use('/optimized_spoof', spoofCtrl.optimized);
@@ -183,16 +130,13 @@ app.use('/rubiconVideo', spoofCtrl.rubiconVideo);
 app.use('/kargoVideo', spoofCtrl.kargoVideo);
 app.use('/adagioVideo', spoofCtrl.adagioVideo);
 app.use('/sharethroughVideoAd', spoofCtrl.sharethroughVideoAd);
-// app.use('/creative/71739d10-c5f3-4e72-aa21-4f05d6658680.xml', spoofCtrl.video_creative)
 
 const secure = https.createServer(credentials, app);
 const notSecure = http.createServer(app);
-
 secure.listen(securePort, err => {
   if (err) return console.log(err);
   console.log('Secured localhost started on', securePort);
 });
-
 notSecure.listen(port, err => {
   if (err) return console.log(err);
   console.log('localhost started on', port);
