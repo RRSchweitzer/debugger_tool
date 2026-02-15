@@ -1242,13 +1242,18 @@ module.exports = {
     });
   },
   kargoDisplay: (req, res) => {
-    console.log('kargoDisplay');
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    if(!body.imp[0].banner) return;
+    let body;
+    try {
+      body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    } catch (err) {
+      return res.status(400).send({ error: 'Invalid JSON' });
+    }
+    const imp = body?.imp?.[0];
+    if (!imp?.banner) return res.status(204).send();
     const isProd = true
 
-    const id = body.imp[0].id;
-    const pid = body.imp[0].pid;
+    const id = imp.id;
+    const pid = imp.pid;
 
     // Get domain from request headers since Kargo prebid doesn't include site field
     const referer = req.headers.referer || req.headers.origin || '';
@@ -1260,17 +1265,31 @@ module.exports = {
     const prodConfig = `https://storage.cloud.kargo.com/ad/network/tag/v3/${adTagUrlId || defaultAdTagUrlId}.js`;
     const configUrl = isProd ? prodConfig : localConfig;
 
-    if (adTagUrlId) {
-      console.log(`[kargoDisplay] Domain: ${domain} -> adTagUrlId: ${adTagUrlId}`);
-    } else {
-      console.log(`[kargoDisplay] Domain: ${domain} -> using default adTagUrlId: ${defaultAdTagUrlId}`);
-    }
-    const width = body.imp[0].banner.sizes[0][0];
-    const height = body.imp[0].banner.sizes[0][1];
-    const gpid = body.imp[0].ext.ortb2Imp.ext.gpid
-    const floor = body.imp[0].floor;
+    const width = imp.banner.sizes?.[0]?.[0] || 300;
+    const height = imp.banner.sizes?.[0]?.[1] || 250;
+    const gpid = imp.ext?.ortb2Imp?.ext?.gpid || '';
+    const floor = imp.floor || 0;
 
-    const newAdm = `<a href="https://example.com" target="_blank"><img src="https://placehold.co/${width}x${height}/e74c3c/ffffff?text=KARGO+TEST+${width}x${height}" width="${width}" height="${height}" style="display:block;margin:0 auto;" /></a>`;
+    const imageUrl = `https://placehold.co/${width}x${height}/e74c3c/ffffff?text=KARGO+TEST`;
+    const fakeCreative = {
+      "creativeId": "fake-123",
+      "assets": [
+        {
+          "id": 1,
+          "img": {
+            "url": imageUrl,
+            "w": width,
+            "h": height
+          }
+        }
+      ],
+      "link": {
+        "url": "https://example.com"
+      }
+    };
+    const admImageHtmlBase64 = Buffer.from(JSON.stringify(fakeCreative), "utf8").toString("base64");
+
+    const newAdm = "\u003cimg height=\"1\" width=\"1\" style=\"display:none\" src=\"https://kraken.prod.kargo.com/api/v1/event/won?ctx=019bdc2e-7e86-7a0e-a358-4b5828590bad\"/\u003e\u003cscript type=\"text/javascript\"\u003e(function(w){if(typeof w.__krg_load_started==='undefined'||!w.__krg_load_started){if(typeof(w.Kargo||{}).loaded==='undefined'){var s=w.document.createElement('script');s.type='text/javascript';s.src='" + configUrl + "';w.document.head.appendChild(s)}w.__krg_load_started=true}(w.Kargo=w.Kargo||{}).ads=w.Kargo.ads||[];w.Kargo.ads.push({kargo_id:\"" + pid + "\",source_window:window,source_element:document.currentScript,kraken:{\"kargo_id\":\"" + pid + "\",\"krg_imp_id\":\"019bdc2e-7e86-7a0e-a358-4b5828590bad\",\"page_view_id\":\"890a20ca-f48d-41dc-9e02-62c577b08a7e\",\"krk_imp_tracker\":\"https://kraken.prod.kargo.com/api/v1/event/adtag-pixel?ctx=019bdc2e-7e86-7a0e-a358-4b5828590bad\u0026adtag_version={AD_TAG_VERSION}\",\"context\":\"019bdc2e-7e86-7a0e-a358-4b5828590bad\",\"kraken_domain\":\"kraken.prod.kargo.com\",\"id\":\"25_ht2f8jk9\",\"auction_type\":\"open\",\"size\":\"" + width + "x" + height + "\",\"adomain\":\"testadvertiser.com\",\"scylla_impression_id\":\"647e5c6c-297a-4f26-9f68-d0ba899f1a84\",\"scylla_seat_bid_id\":\"9f1aac0c-d3e8-4a31-9546-60985ded1672\",\"creative_optimizer\":{\"template_id\":\"aba-display-1\",\"template_url\":\"https://storage.cloud.kargo.com/ad/network/kap/templates/native/aba-display-1.min.js\"},\"ext\":{\"response_type\":\"native\"},\"gpid\":\"" + gpid + "\",\"adm\":\"" + admImageHtmlBase64 + "\",\"tracking\":{\"serve\":[],\"win\":[],\"view\":\"https://kraken.prod.kargo.com/api/v1/event/moat?ctx=019bdc2e-7e86-7a0e-a358-4b5828590bad\",\"billable\":[\"https://kraken.prod.kargo.com/api/v1/event/billable?ctx=019bdc2e-7e86-7a0e-a358-4b5828590bad\u0026adtag_version={AD_TAG_VERSION}\"],\"blocked\":[\"https://kraken.prod.kargo.com/api/v1/event/blocked?ctx=019bdc2e-7e86-7a0e-a358-4b5828590bad\"],\"click\":[]}}});(w.Kargo.loadAds||function(){})()})(function(){var w=window;try{w=w.top.document?w.top:w}catch(e){}return w}());\u003c/script\u003e";
 
 
     res.send({

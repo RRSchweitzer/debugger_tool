@@ -49,6 +49,7 @@ The `kargoDisplay` handler automatically looks up the correct ad-tag config base
 - `/prebid-video` - Video prebid test page
 
 **SSP Mocks (redirect your traffic here):**
+- `/kargoPrebid` - Auto-routes display vs video based on `imp[0].banner` (use this as single Requestly redirect target)
 - `/kargoDisplay` - Kargo display bid responses (uses domain lookup)
 - `/kargoVideo` - Kargo video bid responses
 - `/appnexusVideo` - AppNexus video responses
