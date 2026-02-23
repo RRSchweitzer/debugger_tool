@@ -1,13 +1,26 @@
 // Video Cpms
-const kargoCpm = 40.00;
+const kargoCpm = 40.0;
 const rubiconCpm = 20;
 const pubmaticCpm = 14;
 const appnexusCpm = 2;
 const sharethroughCpm = 2;
-const adagioCpm = 22.00
+const adagioCpm = 22.0;
 
 const fs = require('fs');
 const path = require('path');
+const { exec, execSync } = require('child_process');
+const { getDisplayAdm } = require('./creatives');
+
+// Track last config urlId to avoid re-downloading on every request
+let _lastConfigUrlId = null;
+
+// Detect ad-tag docker container port on startup
+let adTagPort = null;
+try {
+  const portOutput = execSync("docker ps --filter name=ad-tag --format '{{.Ports}}'", { encoding: 'utf8' }).trim();
+  const match = portOutput.match(/0\.0\.0\.0:(\d+)->80/);
+  if (match) adTagPort = match[1];
+} catch (e) {}
 
 // Load ad-tag-cache.json for domain -> adTagUrlId lookup
 const adTagCachePath = path.join(__dirname, '..', 'ad-tag-cache.json');
@@ -19,15 +32,38 @@ try {
 }
 
 // Lookup adTagUrlId by domain
-function getAdTagUrlIdByDomain(domain) {
+function getAdTagUrlIdByDomain(domain, body) {
   if (!domain) return null;
   // Normalize domain - remove www. prefix and leading dots
   const normalizedDomain = domain.replace(/^(www\.|\.)/, '').toLowerCase();
-  const entry = adTagCache.entries.find(e => {
+  // Sort by longest domain first so "greenmatters.com" matches before "com"
+  const sorted = [...adTagCache.entries].sort((a, b) => b.domain.length - a.domain.length);
+  const entry = sorted.find(e => {
     const cacheDomain = e.domain.replace(/^(www\.|\.)/, '').toLowerCase();
-    return cacheDomain === normalizedDomain || normalizedDomain.endsWith('.' + cacheDomain) || cacheDomain.endsWith('.' + normalizedDomain);
+    if (!cacheDomain.includes('.')) return false; // skip TLD-only entries like "com"
+    return (
+      cacheDomain === normalizedDomain ||
+      normalizedDomain.endsWith('.' + cacheDomain) ||
+      cacheDomain.endsWith('.' + normalizedDomain)
+    );
   });
-  return entry ? entry.adTagUrlId : null;
+  if (entry) return entry.adTagUrlId;
+
+  // Fallback: look up schain asi domain in the cache
+  if (body) {
+    const schainNodes = body.schain?.nodes || body.source?.ext?.schain?.nodes || [];
+    for (const node of schainNodes) {
+      const asi = node.asi?.toLowerCase();
+      if (asi) {
+        const networkEntry = sorted.find(e => e.domain.replace(/^(www\.|\.)/, '').toLowerCase() === asi);
+        if (networkEntry) {
+          return networkEntry.adTagUrlId;
+        }
+      }
+    }
+  }
+
+  return null;
 }
 
 function randomRangeCPM(min, max) {
@@ -341,307 +377,302 @@ module.exports = {
     const uuid = uuidv4();
 
     res.send({
-      "bids": [
-          {
-              "requestId": bidId,
-          "creativeId": "6732_70269_T23504205",
-              "cpm": adagioCpm,
-              "currency": "USD",
-          "vastUrl": `https://localhost:7070/adagioAd.xml?${uuid}`,
-          "ttl": 2700,
-              "netRevenue": true,
-              "adUnitCode": "Fabrik_Outstream_Player",
-              "aDomain": [
-            "mcdonalds.com"
-              ],
-          "seatId": "25",
-              "pba": {
-            "st_id": "25",
-                  "splt_cs_id": "347"
-              },
-              "meta": {
-                  "advertiserDomains": [
-              "spoofed-ad.com"
-            ]
-              },
-              "mediaType": "video",
-          "instream": {}
-        }
-    ]
-});
+      bids: [
+        {
+          requestId: bidId,
+          creativeId: '6732_70269_T23504205',
+          cpm: adagioCpm,
+          currency: 'USD',
+          vastUrl: `https://localhost:7070/adagioAd.xml?${uuid}`,
+          ttl: 2700,
+          netRevenue: true,
+          adUnitCode: 'Fabrik_Outstream_Player',
+          aDomain: ['mcdonalds.com'],
+          seatId: '25',
+          pba: {
+            st_id: '25',
+            splt_cs_id: '347',
+          },
+          meta: {
+            advertiserDomains: ['spoofed-ad.com'],
+          },
+          mediaType: 'video',
+          instream: {},
+        },
+      ],
+    });
   },
 
   newDomainConfig: (req, res) => {
-
     res.send({
-      "domain": "lovebscott.com",
-      "site_id": "z8tuuyzeyc69mvbukoesecnz30qh7eav",
-      "token": "5bf6xy15nxdapzyupdqhyi57r03l7j15",
-      "key": "Outstream V2",
-        "config": {
-          "type": "v2-prod",
-          "prerollconfig": [
+      domain: 'lovebscott.com',
+      site_id: 'z8tuuyzeyc69mvbukoesecnz30qh7eav',
+      token: '5bf6xy15nxdapzyupdqhyi57r03l7j15',
+      key: 'Outstream V2',
+      config: {
+        type: 'v2-prod',
+        prerollconfig: [
+          {
+            prebidbids: [
               {
-                  "prebidbids": [
-                      {
-                          "bidder": "kargo",
-                          "params": {
-                              "placementId": {
-                                  "&mobile": "_fbQyupuVFk",
-                                  "&desktop": "_yVinTG1Qt6"
-                              }
-                          }
-                      },
-                      {
-                          "bidder": "appnexus",
-                          "params": {
-                              "placementId": "32304081"
-                          }
-                      },
-                      {
-                          "bidder": "pubmatic",
-                          "params": {
-                              "publisherId": "5810203",
-                              "video": {
-                                  "language": "en"
-                      }
-                    }
+                bidder: 'kargo',
+                params: {
+                  placementId: {
+                    '&mobile': '_fbQyupuVFk',
+                    '&desktop': '_yVinTG1Qt6',
                   },
-                  {
-                          "bidder": "rubicon",
-                          "params": {
-                              "accountId": "14792",
-                              "siteId": "534850",
-                              "zoneId": "3289294"
-                          }
-                      }
-                  ],
-                  "prebiddfpad": {
-                      "iu": "/22558409563,21923628061/Fabrik_Outstream_Player/o5s6iysxcjd413wzhiuhlhnxlgxw7se5"
-                  }
-              }
-          ],
-          "midrollconfig": [
+                },
+              },
               {
-                  "prebidbids": [
-                      {
-                          "bidder": "kargo",
-                        "params": {
-                              "placementId": {
-                                  "&mobile": "_fbQyupuVFk",
-                                  "&desktop": "_yVinTG1Qt6"
-                              }
-                        }
-                    },
-                    {
-                          "bidder": "appnexus",
-                        "params": {
-                              "placementId": "32304083"
-                        }
-                    },
-                    {
-                        "bidder": "pubmatic",
-                        "params": {
-                              "publisherId": "5810204",
-                            "video": {
-                                "language": "en"
-                            }
-                        }
-                    },
-                    {
-                          "bidder": "rubicon",
-                        "params": {
-                              "accountId": "14792",
-                              "siteId": "534850",
-                              "zoneId": "3289296"
-                          }
-                      }
-                  ],
-                  "prebiddfpad": {
-                      "iu": "/22558409563,21923628061/lovebscott_midroll"
-                  }
-              }
-          ],
-          "prebidconfig": {
-              "priceGranularity": {
-                  "buckets": [
-                      {
-                          "max": 40,
-                          "increment": 0.05
-                      }
-                  ]
+                bidder: 'appnexus',
+                params: {
+                  placementId: '32304081',
+                },
               },
-              "schain": {
-                  "config": {
-                      "ver": "1.0",
-                      "complete": 1,
-                      "nodes": [
-                          {
-                              "asi": "fabrik.com",
-                              "sid": "56",
-                              "hp": 1
-                          }
-                      ]
-                  }
-              }
-          },
-          "adsposition": "pre,mid[30*]",
-          "autoplay": true,
-          "muted": true,
-          "unmuteonclick": true,
-          "floatstyle": "v2",
-          "floatingoptions": {
-              "mobile": {
-                  "position": "top-right",
-                  "height": 120
+              {
+                bidder: 'pubmatic',
+                params: {
+                  publisherId: '5810203',
+                  video: {
+                    language: 'en',
+                  },
+                },
               },
-              "desktop": {
-                  "position": "bottom-right"
+              {
+                bidder: 'rubicon',
+                params: {
+                  accountId: '14792',
+                  siteId: '534850',
+                  zoneId: '3289294',
+                },
               },
-              "hideplayeronclose": true,
-              "floatingonly": true,
-              "sidebar": false
+            ],
+            prebiddfpad: {
+              iu: '/22558409563,21923628061/Fabrik_Outstream_Player/o5s6iysxcjd413wzhiuhlhnxlgxw7se5',
+            },
           },
-          "floating": true,
-          "outstream": true,
-          "outstreamoptions": {
-              "hideOnCompletion": true,
-              "maxadstoshow": -1,
-              "allowRepeat": true
+        ],
+        midrollconfig: [
+          {
+            prebidbids: [
+              {
+                bidder: 'kargo',
+                params: {
+                  placementId: {
+                    '&mobile': '_fbQyupuVFk',
+                    '&desktop': '_yVinTG1Qt6',
+                  },
+                },
+              },
+              {
+                bidder: 'appnexus',
+                params: {
+                  placementId: '32304083',
+                },
+              },
+              {
+                bidder: 'pubmatic',
+                params: {
+                  publisherId: '5810204',
+                  video: {
+                    language: 'en',
+                  },
+                },
+              },
+              {
+                bidder: 'rubicon',
+                params: {
+                  accountId: '14792',
+                  siteId: '534850',
+                  zoneId: '3289296',
+                },
+              },
+            ],
+            prebiddfpad: {
+              iu: '/22558409563,21923628061/lovebscott_midroll',
+            },
           },
-          "preferredextensions": "m3u8",
-          "cdnhost": "video.cloud.kargo.com",
-          "hidebrandinfo": true,
-          "allowshowmore": false,
-          "bypagecontent": true,
-          "query": {
-              "limit": 1,
-              "category": "entertainment"
+        ],
+        prebidconfig: {
+          priceGranularity: {
+            buckets: [
+              {
+                max: 40,
+                increment: 0.05,
+              },
+            ],
           },
-          "blockrecentvideos": true,
-          "recentvideoshourstimeout": 24,
-          "globalStyles": "[data-visibility=\"float\"][data-layout=\"mobile\"]>.krg-layout-mobile{margin-top:0px; z-index:9;}[data-layout=\"desktop\"][data-visibility=\"float\"] .krg-3d-scene.krg-floating-player {bottom: 110px !important;}"
+          schain: {
+            config: {
+              ver: '1.0',
+              complete: 1,
+              nodes: [
+                {
+                  asi: 'fabrik.com',
+                  sid: '56',
+                  hp: 1,
+                },
+              ],
+            },
+          },
+        },
+        adsposition: 'pre,mid[30*]',
+        autoplay: true,
+        muted: true,
+        unmuteonclick: true,
+        floatstyle: 'v2',
+        floatingoptions: {
+          mobile: {
+            position: 'top-right',
+            height: 120,
+          },
+          desktop: {
+            position: 'bottom-right',
+          },
+          hideplayeronclose: true,
+          floatingonly: true,
+          sidebar: false,
+        },
+        floating: true,
+        outstream: true,
+        outstreamoptions: {
+          hideOnCompletion: true,
+          maxadstoshow: -1,
+          allowRepeat: true,
+        },
+        preferredextensions: 'm3u8',
+        cdnhost: 'video.cloud.kargo.com',
+        hidebrandinfo: true,
+        allowshowmore: false,
+        bypagecontent: true,
+        query: {
+          limit: 1,
+          category: 'entertainment',
+        },
+        blockrecentvideos: true,
+        recentvideoshourstimeout: 24,
+        globalStyles:
+          '[data-visibility="float"][data-layout="mobile"]>.krg-layout-mobile{margin-top:0px; z-index:9;}[data-layout="desktop"][data-visibility="float"] .krg-3d-scene.krg-floating-player {bottom: 110px !important;}',
       },
-      "revision": 3
-  })
-  //   res.send({
-  //     "domain": "greenmatters.com",
-  //     "site_id": "bmbk0x29w2o6lu5kozoit8z9wod5bm0s",
-  //     "token": "yrd54jwuwk869svbcygtf6i2hgaxqs1d",
-  //     "key": "FVP Outstream",
-  //     "config": {
-  //         "type": "prod",
-  //         "original_site_id": "bmbk0x29w2o6lu5kozoit8z9wod5bm0s",
-  //         "gam": {
-  //             "gamChildNetworkCode": "18834096",
-  //             "googleAdTagDefaults": {
-  //                 "cust_params": {
-  //                     "kvp_test": "3.0.0"
-  //                 }
-  //             }
-  //         },
-  //         "video": [
-  //             {
-  //                 "type": "outstream",
-  //                 "width": 350,
-  //                 "height": 197
-  //             }
-  //         ],
-  //         "prebid": {
-  //             "nonUniversalBidders": [
-  //                 {
-  //                     "bidder": "appnexus",
-  //                     "params": {
-  //                         "placementId": 27726592
-  //                     }
-  //                 },
-  //                 {
-  //                     "bidder": "criteo",
-  //                     "params": {
-  //                         "networkId": 12022
-  //                     }
-  //                 },
-  //                 {
-  //                     "bidder": "pubmatic",
-  //                     "params": {
-  //                         "publisherId": "160382",
-  //                         "adSlot": "4744661",
-  //                         "video": {
-  //                             "language": "en"
-  //                         }
-  //                     }
-  //                 },
-  //                 {
-  //                     "bidder": "rubicon",
-  //                     "params": {
-  //                         "accountId": 14792,
-  //                         "siteId": 135894,
-  //                         "zoneId": 2776394,
-  //                         "video": {
-  //                             "language": "en"
-  //                         }
-  //                     }
-  //                 },
-  //                 {
-  //                     "bidder": "medianet",
-  //                     "params": {
-  //                         "cid": "8CUA286RD",
-  //                         "crid": "321813836"
-  //                     }
-  //                 },
-  //                 {
-  //                     "bidder": "sharethrough",
-  //                     "params": {
-  //                         "pkey": "PQcCMQebxWvgyJmPtIqd0icI"
-  //                     }
-  //                 },
-  //                 {
-  //                     "bidder": "kargo",
-  //                     "params": {
-  //                         "placementId": {
-  //                             "mobile": "_l7B3dJDVeQ",
-  //                             "desktop": "_djwZ5uZ3I4"
-  //                         }
-  //                     }
-  //                 },
-  //                 {
-  //                     "bidder": "triplelift",
-  //                     "params": {
-  //                         "inventoryCode": "greenmatters_com_In-Article_Outstream_pb"
-  //                     }
-  //                 },
-  //                 {
-  //                     "bidder": "smartadserver",
-  //                     "params": {
-  //                         "domain": "https://prg.smartadserver.com",
-  //                         "formatId": 126627,
-  //                         "networkId": 4794,
-  //                         "pageId": 1890425,
-  //                         "siteId": 621263
-  //                     }
-  //                 }
-  //             ],
-  //             "enabledBidders": {
-  //                 "appnexus": true,
-  //                 "gumgum": true,
-  //                 "criteo": true,
-  //                 "ix": true,
-  //                 "kargo": true,
-  //                 "medianet": true,
-  //                 "openx": true,
-  //                 "pubmatic": true,
-  //                 "rubicon": true,
-  //                 "sovrn": true,
-  //                 "sharethrough": true,
-  //                 "smartadserver": true,
-  //                 "triplelift": true
-  //             }
-  //         },
-  //         "schemaVersion": "3.0"
-  //     },
-  //     "revision": 25
-  // })
-
+      revision: 3,
+    });
+    //   res.send({
+    //     "domain": "greenmatters.com",
+    //     "site_id": "bmbk0x29w2o6lu5kozoit8z9wod5bm0s",
+    //     "token": "yrd54jwuwk869svbcygtf6i2hgaxqs1d",
+    //     "key": "FVP Outstream",
+    //     "config": {
+    //         "type": "prod",
+    //         "original_site_id": "bmbk0x29w2o6lu5kozoit8z9wod5bm0s",
+    //         "gam": {
+    //             "gamChildNetworkCode": "18834096",
+    //             "googleAdTagDefaults": {
+    //                 "cust_params": {
+    //                     "kvp_test": "3.0.0"
+    //                 }
+    //             }
+    //         },
+    //         "video": [
+    //             {
+    //                 "type": "outstream",
+    //                 "width": 350,
+    //                 "height": 197
+    //             }
+    //         ],
+    //         "prebid": {
+    //             "nonUniversalBidders": [
+    //                 {
+    //                     "bidder": "appnexus",
+    //                     "params": {
+    //                         "placementId": 27726592
+    //                     }
+    //                 },
+    //                 {
+    //                     "bidder": "criteo",
+    //                     "params": {
+    //                         "networkId": 12022
+    //                     }
+    //                 },
+    //                 {
+    //                     "bidder": "pubmatic",
+    //                     "params": {
+    //                         "publisherId": "160382",
+    //                         "adSlot": "4744661",
+    //                         "video": {
+    //                             "language": "en"
+    //                         }
+    //                     }
+    //                 },
+    //                 {
+    //                     "bidder": "rubicon",
+    //                     "params": {
+    //                         "accountId": 14792,
+    //                         "siteId": 135894,
+    //                         "zoneId": 2776394,
+    //                         "video": {
+    //                             "language": "en"
+    //                         }
+    //                     }
+    //                 },
+    //                 {
+    //                     "bidder": "medianet",
+    //                     "params": {
+    //                         "cid": "8CUA286RD",
+    //                         "crid": "321813836"
+    //                     }
+    //                 },
+    //                 {
+    //                     "bidder": "sharethrough",
+    //                     "params": {
+    //                         "pkey": "PQcCMQebxWvgyJmPtIqd0icI"
+    //                     }
+    //                 },
+    //                 {
+    //                     "bidder": "kargo",
+    //                     "params": {
+    //                         "placementId": {
+    //                             "mobile": "_l7B3dJDVeQ",
+    //                             "desktop": "_djwZ5uZ3I4"
+    //                         }
+    //                     }
+    //                 },
+    //                 {
+    //                     "bidder": "triplelift",
+    //                     "params": {
+    //                         "inventoryCode": "greenmatters_com_In-Article_Outstream_pb"
+    //                     }
+    //                 },
+    //                 {
+    //                     "bidder": "smartadserver",
+    //                     "params": {
+    //                         "domain": "https://prg.smartadserver.com",
+    //                         "formatId": 126627,
+    //                         "networkId": 4794,
+    //                         "pageId": 1890425,
+    //                         "siteId": 621263
+    //                     }
+    //                 }
+    //             ],
+    //             "enabledBidders": {
+    //                 "appnexus": true,
+    //                 "gumgum": true,
+    //                 "criteo": true,
+    //                 "ix": true,
+    //                 "kargo": true,
+    //                 "medianet": true,
+    //                 "openx": true,
+    //                 "pubmatic": true,
+    //                 "rubicon": true,
+    //                 "sovrn": true,
+    //                 "sharethrough": true,
+    //                 "smartadserver": true,
+    //                 "triplelift": true
+    //             }
+    //         },
+    //         "schemaVersion": "3.0"
+    //     },
+    //     "revision": 25
+    // })
   },
   domainConfig: (req, res) => {
     res.send({
@@ -1054,7 +1085,6 @@ module.exports = {
     });
   },
   amazon: (req, res) => {
-
     // var size_id = parseInt(req.query.size_id);
     // var account_id = parseInt(req.query.account_id)
     // var site_id = parseInt(req.query.site_id)
@@ -1250,7 +1280,7 @@ module.exports = {
     }
     const imp = body?.imp?.[0];
     if (!imp?.banner) return res.status(204).send();
-    const isProd = true
+    const isProd = false;
 
     const id = imp.id;
     const pid = imp.pid;
@@ -1258,62 +1288,139 @@ module.exports = {
     // Get domain from request headers since Kargo prebid doesn't include site field
     const referer = req.headers.referer || req.headers.origin || '';
     const domain = referer.match(/https?:\/\/([^\/]+)/)?.[1] || '';
-    const adTagUrlId = getAdTagUrlIdByDomain(domain);
+    const adTagUrlId = getAdTagUrlIdByDomain(domain, body);
     const defaultAdTagUrlId = '_gcOQsPGsYCzF3NVHLjrsa5jG'; // distractify fallback
 
-    const localConfig = "http://localhost:58174/js/AdTag.config.js";
-    const prodConfig = `https://storage.cloud.kargo.com/ad/network/tag/v3/${adTagUrlId || defaultAdTagUrlId}.js`;
+    const resolvedUrlId = adTagUrlId || defaultAdTagUrlId;
+    const localConfig = `http://localhost:${adTagPort || '80'}/js/AdTag.config.js`;
+    const prodConfig = `https://storage.cloud.kargo.com/ad/network/tag/v3/${resolvedUrlId}.js`;
     const configUrl = isProd ? prodConfig : localConfig;
+
+    // Auto-update local ad-tag config when not using prod (async, ready for next page load)
+    if (!isProd && resolvedUrlId !== _lastConfigUrlId) {
+      _lastConfigUrlId = resolvedUrlId;
+      exec(`/Users/ryan.schweitzer/bin/copyATConfigLocal ${resolvedUrlId}.js`, err => {
+        if (err) {
+          console.error(`[kargoDisplay] Failed to update local config: ${err.message}`);
+          _lastConfigUrlId = null; // reset so it retries next request
+        } else {
+          console.log(`[kargoDisplay] Updated local ad-tag config for urlId: ${resolvedUrlId}`);
+        }
+      });
+    }
 
     const width = imp.banner.sizes?.[0]?.[0] || 300;
     const height = imp.banner.sizes?.[0]?.[1] || 250;
     const gpid = imp.ext?.ortb2Imp?.ext?.gpid || '';
     const floor = imp.floor || 0;
 
-    const imageUrl = `https://placehold.co/${width}x${height}/e74c3c/ffffff?text=KARGO+TEST`;
-    const fakeCreative = {
-      "creativeId": "fake-123",
-      "assets": [
-        {
-          "id": 1,
-          "img": {
-            "url": imageUrl,
-            "w": width,
-            "h": height
-          }
-        }
-      ],
-      "link": {
-        "url": "https://example.com"
-      }
-    };
-    const admImageHtmlBase64 = Buffer.from(JSON.stringify(fakeCreative), "utf8").toString("base64");
-
-    const newAdm = "\u003cimg height=\"1\" width=\"1\" style=\"display:none\" src=\"https://kraken.prod.kargo.com/api/v1/event/won?ctx=019bdc2e-7e86-7a0e-a358-4b5828590bad\"/\u003e\u003cscript type=\"text/javascript\"\u003e(function(w){if(typeof w.__krg_load_started==='undefined'||!w.__krg_load_started){if(typeof(w.Kargo||{}).loaded==='undefined'){var s=w.document.createElement('script');s.type='text/javascript';s.src='" + configUrl + "';w.document.head.appendChild(s)}w.__krg_load_started=true}(w.Kargo=w.Kargo||{}).ads=w.Kargo.ads||[];w.Kargo.ads.push({kargo_id:\"" + pid + "\",source_window:window,source_element:document.currentScript,kraken:{\"kargo_id\":\"" + pid + "\",\"krg_imp_id\":\"019bdc2e-7e86-7a0e-a358-4b5828590bad\",\"page_view_id\":\"890a20ca-f48d-41dc-9e02-62c577b08a7e\",\"krk_imp_tracker\":\"https://kraken.prod.kargo.com/api/v1/event/adtag-pixel?ctx=019bdc2e-7e86-7a0e-a358-4b5828590bad\u0026adtag_version={AD_TAG_VERSION}\",\"context\":\"019bdc2e-7e86-7a0e-a358-4b5828590bad\",\"kraken_domain\":\"kraken.prod.kargo.com\",\"id\":\"25_ht2f8jk9\",\"auction_type\":\"open\",\"size\":\"" + width + "x" + height + "\",\"adomain\":\"testadvertiser.com\",\"scylla_impression_id\":\"647e5c6c-297a-4f26-9f68-d0ba899f1a84\",\"scylla_seat_bid_id\":\"9f1aac0c-d3e8-4a31-9546-60985ded1672\",\"creative_optimizer\":{\"template_id\":\"aba-display-1\",\"template_url\":\"https://storage.cloud.kargo.com/ad/network/kap/templates/native/aba-display-1.min.js\"},\"ext\":{\"response_type\":\"native\"},\"gpid\":\"" + gpid + "\",\"adm\":\"" + admImageHtmlBase64 + "\",\"tracking\":{\"serve\":[],\"win\":[],\"view\":\"https://kraken.prod.kargo.com/api/v1/event/moat?ctx=019bdc2e-7e86-7a0e-a358-4b5828590bad\",\"billable\":[\"https://kraken.prod.kargo.com/api/v1/event/billable?ctx=019bdc2e-7e86-7a0e-a358-4b5828590bad\u0026adtag_version={AD_TAG_VERSION}\"],\"blocked\":[\"https://kraken.prod.kargo.com/api/v1/event/blocked?ctx=019bdc2e-7e86-7a0e-a358-4b5828590bad\"],\"click\":[]}}});(w.Kargo.loadAds||function(){})()})(function(){var w=window;try{w=w.top.document?w.top:w}catch(e){}return w}());\u003c/script\u003e";
-
+    const adType = req.query.adType;
+    const newAdm = getDisplayAdm(adType, { configUrl, pid, width, height, gpid });
 
     res.send({
       [id]: {
-          "cpm": 50.00,
-          "pricing": {
-              floor,
-              "buckets": null
-          },
-          "metadata": {
-              "landingPageDomain": [
-                  "totalwine.com"
-              ]
-          },
-          "adm": newAdm,
-          "id": pid,
-          "targetingPrefix": "",
-          "creativeID": "87_80476_751308572",
-          "currency": "USD",
-          "mediaType": "banner",
-          "width": width,
-          "height": height,
-          "bidID": 98273987234,
-      }
+        cpm: 50.0,
+        pricing: {
+          floor,
+          buckets: null,
+        },
+        metadata: {
+          landingPageDomain: ['totalwine.com'],
+        },
+        adm: newAdm,
+        id: pid,
+        targetingPrefix: '',
+        creativeID: '87_80476_751308572',
+        currency: 'USD',
+        mediaType: 'banner',
+        width: width,
+        height: height,
+        bidID: 98273987234,
+      },
+    });
+  },
+  pbsKargo: (req, res) => {
+    let body;
+    try {
+      body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    } catch (err) {
+      return res.status(400).send({ error: 'Invalid JSON' });
+    }
+    const imp = body?.imp?.[0];
+    if (!imp) return res.status(204).send();
+    const isProd = false;
+
+    const impId = imp.id;
+    const pid = imp.ext?.prebid?.bidder?.kargo?.placementId || imp.pid || '_defaultPid';
+
+    const referer = req.headers.referer || req.headers.origin || '';
+    const domain = referer.match(/https?:\/\/([^\/]+)/)?.[1] || '';
+    const adTagUrlId = getAdTagUrlIdByDomain(domain, body);
+    const defaultAdTagUrlId = '_gcOQsPGsYCzF3NVHLjrsa5jG';
+    const resolvedUrlId = adTagUrlId || defaultAdTagUrlId;
+    const localConfig = `http://localhost:${adTagPort || '80'}/js/AdTag.config.js`;
+    const prodConfig = `https://storage.cloud.kargo.com/ad/network/tag/v3/${resolvedUrlId}.js`;
+    const configUrl = isProd ? prodConfig : localConfig;
+
+    if (!isProd && resolvedUrlId !== _lastConfigUrlId) {
+      _lastConfigUrlId = resolvedUrlId;
+      exec(`/Users/ryan.schweitzer/bin/copyATConfigLocal ${resolvedUrlId}.js`, err => {
+        if (err) {
+          console.error(`[pbsKargo] Failed to update local config: ${err.message}`);
+          _lastConfigUrlId = null;
+        }
+      });
+    }
+
+    const width = imp.banner?.format?.[0]?.w || imp.banner?.w || 300;
+    const height = imp.banner?.format?.[0]?.h || imp.banner?.h || 250;
+    const gpid = imp.ext?.gpid || imp.ext?.prebid?.bidder?.kargo?.gpid || '';
+
+    const adType = req.query.adType;
+    const adm = getDisplayAdm(adType, { configUrl, pid, width, height, gpid });
+
+    const uuid = uuidv4();
+    res.send({
+      id: uuid,
+      seatbid: [
+        {
+          bid: [
+            {
+              id: uuidv4(),
+              impid: impId,
+              price: kargoCpm,
+              adomain: ['testadvertiser.com'],
+              crid: '87_80476_751308572',
+              w: width,
+              h: height,
+              adm: adm,
+              ext: {
+                prebid: {
+                  type: 'banner',
+                  targeting: {
+                    hb_pb: String(kargoCpm.toFixed(2)),
+                    hb_bidder: 'kargo',
+                    hb_size: `${width}x${height}`,
+                  },
+                  events: {
+                    win: `https://kraken.prod.kargo.com/api/v1/event/win?ctx=${uuid}`,
+                    imp: `https://kraken.prod.kargo.com/api/v1/event/imp?ctx=${uuid}`,
+                  },
+                },
+                origbidcpm: kargoCpm,
+              },
+            },
+          ],
+          seat: 'kargo',
+          group: 0,
+        },
+      ],
+      cur: 'USD',
+      ext: {
+        responsetimemillis: { kargo: 150 },
+        tmaxrequest: 2000,
+        prebid: { auctiontimestamp: Date.now() },
+      },
     });
   },
   kargoVideo: (req, res) => {
@@ -1439,7 +1546,7 @@ module.exports = {
           impression_id: 'e74eb7d6-04d9-4faf-af44-34c2d45fbef2',
         },
       ],
-  });
+    });
   },
   video_spoof: (req, res) => {
     const adId = req.body.imp.id;

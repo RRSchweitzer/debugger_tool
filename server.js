@@ -30,8 +30,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.header(
     'Access-Control-Allow-Headers',
-    req.headers['access-control-request-headers'] ||
-      'Origin, X-Requested-With, Content-Type, Accept',
+    req.headers['access-control-request-headers'] || 'Origin, X-Requested-With, Content-Type, Accept',
   );
   if (req.method === 'OPTIONS') {
     res.header('Access-Control-Allow-Private-Network', 'true');
@@ -44,22 +43,21 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
 
   if (origin) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
   } else {
     // non-browser clients
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
 
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader(
-    "Access-Control-Allow-Headers",
-    req.headers["access-control-request-headers"] ||
-      "Origin, X-Requested-With, Content-Type, Accept"
+    'Access-Control-Allow-Headers',
+    req.headers['access-control-request-headers'] || 'Origin, X-Requested-With, Content-Type, Accept',
   );
 
-  if (req.method === "OPTIONS") return res.sendStatus(204);
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
 app.use(express.static(__dirname));
@@ -126,6 +124,7 @@ app.get('/video/iceland', (req, res) => {
 app.use('/pubx', express.static('./prebid-library/pubx.js'));
 app.use('/floors', spoofCtrl.floors);
 app.use('/auction', spoofCtrl.auction);
+app.use('/pbsKargo', spoofCtrl.pbsKargo);
 app.use('/optimized_spoof', spoofCtrl.optimized);
 app.use('/video_spoof', spoofCtrl.video_spoof);
 app.use('/video_creative', spoofCtrl.video_creative);
