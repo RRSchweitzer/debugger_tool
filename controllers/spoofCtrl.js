@@ -1299,7 +1299,7 @@ module.exports = {
     // Auto-update local ad-tag config when not using prod (async, ready for next page load)
     if (!isProd && resolvedUrlId !== _lastConfigUrlId) {
       _lastConfigUrlId = resolvedUrlId;
-      exec(`/Users/ryan.schweitzer/bin/copyATConfigLocal ${resolvedUrlId}.js`, err => {
+      exec(`${__dirname}/../bin/copyATConfigLocal ${resolvedUrlId}.js`, err => {
         if (err) {
           console.error(`[kargoDisplay] Failed to update local config: ${err.message}`);
           _lastConfigUrlId = null; // reset so it retries next request
@@ -1364,7 +1364,7 @@ module.exports = {
 
     if (!isProd && resolvedUrlId !== _lastConfigUrlId) {
       _lastConfigUrlId = resolvedUrlId;
-      exec(`/Users/ryan.schweitzer/bin/copyATConfigLocal ${resolvedUrlId}.js`, err => {
+      exec(`${__dirname}/../bin/copyATConfigLocal ${resolvedUrlId}.js`, err => {
         if (err) {
           console.error(`[pbsKargo] Failed to update local config: ${err.message}`);
           _lastConfigUrlId = null;

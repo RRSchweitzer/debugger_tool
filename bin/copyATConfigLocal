@@ -1,0 +1,10 @@
+#!/bin/bash
+ATDir="$(dirname "$0")/../../ad-tag/build_src"
+ATLocation="$ATDir/config.local.js"
+
+if [ ! -d "$ATDir" ]; then
+  echo "ad-tag/build_src not found, skipping config update"
+  exit 0
+fi
+
+curl -X GET "https://storage.cloud.kargo.com/ad/network/tag/v3/$1" | sed 's/^.*\(Kargo.self_url\)/\1/' > "$ATLocation"

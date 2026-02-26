@@ -64,9 +64,6 @@ app.use(express.static(__dirname));
 
 const spoofCtrl = require('./controllers/spoofCtrl.js');
 
-app.get('/hi', (req, res) => {
-  res.sendFile(path.join(__dirname + '/test-ads/pbjs_testPage.html'));
-});
 app.get('/kargoAd.xml', (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.sendFile(path.join(__dirname + '/test-ads/kargoAd.xml'));
