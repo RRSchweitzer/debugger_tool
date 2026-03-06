@@ -92,7 +92,6 @@ module.exports = {
     const isVideo = adTypes.includes('video');
     const width = tag.sizes?.[0]?.[0] || tag.primary_size?.width || 300;
     const height = tag.sizes?.[0]?.[1] || tag.primary_size?.height || 250;
-    console.log(`[appnexus] ad_types: ${JSON.stringify(adTypes)}, isVideo: ${isVideo}, size: ${width}x${height}`);
     if (isVideo) {
       res.send({
         version: '3.0.0',
