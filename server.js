@@ -89,7 +89,7 @@ app.get('/kargoLoaderScript', (req, res) => {
 });
 
 app.use('/amazon', spoofCtrl.amazon);
-app.use('/appnexusVideo', spoofCtrl.appnexus);
+app.use('/appnexus', spoofCtrl.appnexus);
 app.use('/domainConfig', spoofCtrl.domainConfig);
 app.use('/newDomain', spoofCtrl.newDomainConfig);
 app.use('/slowlane', spoofCtrl.slowlane);

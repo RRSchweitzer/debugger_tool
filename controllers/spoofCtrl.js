@@ -2,7 +2,7 @@
 const kargoCpm = 40.0;
 const rubiconCpm = 20;
 const pubmaticCpm = 14;
-const appnexusCpm = 2;
+const appnexusCpm = 40;
 const sharethroughCpm = 2;
 const adagioCpm = 22.0;
 
@@ -84,11 +84,16 @@ module.exports = {
     res.send();
   },
   appnexus: (req, res) => {
-    var uuid = JSON.parse(req.body).tags[0].uuid;
-    var uuid2 = JSON.parse(req.body).tags[0].uuid;
-    var tagid = JSON.parse(req.body).tags[0].id;
-    if (tagid === 22366045) {
-      // Stick Outstream
+    const body = JSON.parse(req.body);
+    const tag = body.tags[0];
+    var uuid = tag.uuid;
+    var tagid = tag.id;
+    const adTypes = tag.ad_types || [];
+    const isVideo = adTypes.includes('video');
+    const width = tag.sizes?.[0]?.[0] || tag.primary_size?.width || 300;
+    const height = tag.sizes?.[0]?.[1] || tag.primary_size?.height || 250;
+    console.log(`[appnexus] ad_types: ${JSON.stringify(adTypes)}, isVideo: ${isVideo}, size: ${width}x${height}`);
+    if (isVideo) {
       res.send({
         version: '3.0.0',
         tags: [
@@ -137,58 +142,12 @@ module.exports = {
           },
         ],
       });
-    } else if (true) {
-      //delete the zeros to make this work
-      res.send({
-        version: '3.0.0',
-        tags: [
-          {
-            uuid: uuid,
-            tag_id: tagid,
-            auction_id: uuidv4(),
-            nobid: false,
-            no_ad_url:
-              'https://nym1-ib.adnxs.com/it?an_audit=0&referrer=https%3A%2F%2Fcafedelites.com%2Fcheesy-scrambled-eggs-in-avocado%2F&e=wqT_3QKnD6CnBwAAAwDWAAUBCML3kpgGEPm6z6-R5Zq3ORj4n6T_rou04GkqNgkAAAkCABEJBywAABkAAABAM7MvQCEREgApEQnwhjEAAADgo3AQQDDBprIHOOkbQOkbSABQAFj8vltgAGiC15cBeACAAQGKAQCSAQNVU0SYAQGgAQGoAQGwAQC4AQPAAQDIAQLQAQDYAQDgAQDwAQCKApUBdWYoJ2EnLCA1MDUxMTAyLCAxNjYxMjU0NTk0KTt1ZignaScsIDczOTY3NzksIDE2NjIdACxnJywgMTgzODMzNTBGHgAsYycsIDUzMzExMzUzRh4AMHInLCAzNjkyMjU1NDk2HwDwi5IC5QUhanFLZW9najU3clVaRU0zZWg3QUJHQUFnX0w1Yk1BRTRBRUFBU0p0SlVNR21zZ2RZQUdEd0JtZ0FjQUI0QUlBQkFJZ0JBSkFCQVpnQkFhQUJBcWdCQXJBQkFMa0JhYnB2ZHJEMzlUX0JBV202YjNhdzlfVV95UUVBQUFBQUFBRHdQOWtCQUFBBQ50OERfZ0FhdTd3d1AxQVdabXBrQ1lBZ0NnQWdLMUFnASMEQzkJCNhEQUFnRElBZ0RRQWdEWUFnRGdBZ0RvQWdENEFnQ0FBd0dZQXdHaUF4Y0lzTVRpSWhBQ0dBRXRBAUPwcURJSFpHVm1ZWFZzZEtJRERnaWxzWW9rRUFRWUFTMWtWRDQ3b2dNVENLVFlfU01RQ2hnQkxiWVRqajh5QTNWdWNib0RDVTVaVFRJNk5USTFOLUFEalMtQUJQMlk0d2lJQk51WjR3aVFCQUNZQkFUQkJBQQF2BQEIeVFRBQgFARhOZ0VBUEVFBQwFASBDSUJZa3BxUVUFDhxBQUR3UDdFRg0NARAEQkIdPwB5BSgcREFaMDdpUDkyKAAAWhUo8LZQQV80QVhSc0FqcUJTWUlCQklpQUFBRV9HcV9lUWZuSEJ1ejdFVTMwTm1FcDBhZWtwbHB0cXg2OWJJUTJHOWlBdW9GSmdnREVpSUFBQVBVQzRqWHVMLUdGdDhwOXhmcW9MdDJwb01PTDRUQm84WXlDbmpFNXFBYThBWDJnLUlJLUFYZXBiUUNnZ1lEVlZORWlBWUFrQVlCbUFZQW9RYk56TXpNek13VVFLZ0dCTElHSkFrQUFBQUEB7gRBQj0bBEJrBRMFAQBDHRhwTGdHQ3ZnSG1OTUktQWVTMUFqNEI2UFhDUGdIbGYFFDRDOXdnLpoCmQEhZEJaN0LpAjRQeS1XeUFBS0FBeHpjegWPEEZFQTZDLuEBEDBDTkwwEYEMRHdQMR2BAEYRGAxBQUFHHRgARx0YAEgdGAxIZ0FpLv0C8P13Li7YAv5D4AKdxivqAjlodHRwczovL2NhZmVkZWxpdGVzLmNvbS9jaGVlc3ktc2NyYW1ibGVkLWVnZ3MtaW4tYXZvY2Fkby-AAwCIAwGQAwCYAxegAwGqAwDAA-CoAcgDANgDzoNS4AMA6AMA-AMBgAQAkgQNL3V0L3YzL3ByZWJpZJgEAKIEDDE1NC42LjIyLjIyNagEgfsKsgQQCAEQBBiABSDoAigCMAA4ArgEAMAE2I-5IsgEANIEDjkzNzEjTllNMjo1MjU32gQCCADgBADwBM3eh7ABiAUBmAUAoAX___________8BwAUAyQUAAAAAAADwP9IFCQkAAKl0bNgFAeAFAfAFjwH6BQQIABAAkAYBmAYAuAYAwQYJIijwv9AGljDaBhYKEAkRGQFcEAAYAOAGBPIGAggAgAcBiAcAoAdAugcRAUhUGAAqBDEtLS047h5AAcgHy8QF0gcNCRE8AToI2gcGCSn0XQHgBwDqBwIIAPAHrIGHA4oIwwIKvgIAAAGCyn1t0DluaykV8915AlHCbL9KJDtJMQbtBTEqO-WXJf_QTwqJu7E3IeDCgY0syB1glVKEz57OnZkulabRB-q6bW0QMj_FxQgmIRhoMkULmsR87UQjB9t0Jr1XeiCQf8NcHLorJX5Sb0RiF-kGvSxyuOKIYBMmKG0PAlQE1ZKTUnWxaY8irF53H8bsQI0T22uXROxJh37_zl9N2WUODMIE3OI-JibYLeAUwLKRCyozIQYRdD3rnBcWx5DTPNL0vQ94S6gMmkuDZiCK7B3sWmuYnQoH8DfN2-vsrTLVh37S4iuyeT3NpldP3Mrga2BMcGnAo3la3GC8n6_bv95o8bV5OvY1Zixq2eEuRJ5mkEO5xZ-3rd4Sj4bF9d5VStcOcyoN6cCnO1xYcJbFPjNZ4WdxcZ1D-d_sO3tZUyQQAZUIAACAP5gIAQ..&s=54ec52e927831707c8323705a7c4f2ac36ae001c',
-            timeout_ms: 0,
-            ad_profile_id: 713501,
-            rtb_video_fallback: false,
-            ads: [
-              {
-                cpm: appnexusCpm,
-                cpm_publisher_currency: 50.0,
-                publisher_currency_code: '$',
-                content_source: 'rtb',
-                ad_type: 'video',
-                usersync_url: 'https%3A%2F%2Facdn.adnxs.com%2Fdmp%2Fasync_usersync.html',
-                buyer_member_id: 9371,
-                advertiser_id: 5051102,
-                creative_id: uuidv4(),
-                media_type_id: 4,
-                media_subtype_id: 64,
-                brand_category_id: 27,
-                brand_id: 143,
-                client_initiated_ad_counting: true,
-                rtb: {
-                  video: {
-                    player_width: 640,
-                    player_height: 360,
-                    duration_ms: 30000,
-                    playback_methods: ['auto_play_sound_off'],
-                    frameworks: ['vpaid_2_0'],
-                    asset_url: `https://localhost:7070/appnexusAd.xml?uuid=${uuid}`,
-                  },
-                },
-              },
-            ],
-          },
-        ],
-      });
     } else {
       res.send({
         version: '3.0.0',
         tags: [
           {
-            uuid: '3382364a5cbaafa7',
+            uuid: uuid,
             tag_id: tagid,
             auction_id: '4487644404402535767',
             nobid: false,
@@ -199,8 +158,8 @@ module.exports = {
             rtb_video_fallback: false,
             ads: [
               {
-                cpm: 20.0,
-                cpm_publisher_currency: 20.0,
+                cpm: appnexusCpm,
+                cpm_publisher_currency: appnexusCpm,
                 publisher_currency_code: '$',
                 publisher_currency_codename: 'USD',
                 content_source: 'rtb',
@@ -219,9 +178,9 @@ module.exports = {
                 no_consent: false,
                 rtb: {
                   banner: {
-                    content: '<div id="appnexus-ad">Appnexus ad here</div>',
-                    width: 970,
-                    height: 90,
+                    content: `<a href="#" target="_blank"><img src="https://placehold.co/${width}x${height}/2c3e50/ffffff?text=APPNEXUS+TEST+AD" width="${width}" height="${height}" style="border:0;" /></a>`,
+                    width: width,
+                    height: height,
                   },
                   trackers: [
                     {
